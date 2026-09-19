@@ -1,0 +1,388 @@
+============================================================
+300-EV REAL-WORLD BMS DATASET
+QUALITY ASSESSMENT METADATA
+===========================
+
+Dataset:
+300-EV Real-World BMS Dataset
+
+Source:
+Liu et al. (2025), Nature Communications
+
+Dataset type:
+Large-scale real-world electric vehicle BMS dataset
+
+Dataset purpose:
+Real-world battery state estimation, degradation analysis, and
+battery health assessment using production electric vehicles.
+
+Dataset availability:
+Publicly available dataset and associated implementation code.
+
+============================================================
+
+1. DATASET IDENTITY
+   ============================================================
+
+Dataset name:
+300-EV Real-World BMS Dataset
+
+Study:
+Multi-modal framework for battery state of health evaluation
+using open-source electric vehicle data
+
+Publication:
+Liu et al. (2025), Nature Communications
+
+Number of vehicles:
+300 production electric vehicles
+
+Monitoring duration:
+Approximately three years
+
+Battery chemistry:
+NCM lithium-ion
+
+Pack configuration:
+96 cells in series
+
+Rated pack capacity:
+155 Ah
+
+Total monitored cells:
+28,800 cells (300 vehicles x 96 cells)
+
+============================================================
+2. VEHICLE AND BATTERY CHARACTERISTICS
+======================================
+
+Vehicle type:
+Production electric vehicles
+
+Battery type:
+NCM lithium-ion battery packs
+
+Pack configuration:
+96 cells in series
+
+Cell-level monitoring:
+Individual voltages of all 96 cells are recorded for each vehicle.
+
+Battery capacity:
+Approximately 155 Ah rated capacity per pack.
+
+Fleet scale:
+300 vehicles representing real-world vehicle operation.
+
+============================================================
+3. DATA ACQUISITION
+===================
+
+Acquisition context:
+Real-world vehicle operation using onboard battery management
+systems.
+
+Sampling frequency:
+0.1 Hz, corresponding to approximately one sample every
+10 seconds.
+
+Recording behavior:
+BMS recording is active during monitored vehicle operation and
+stops when the vehicle is switched off.
+
+Operational states:
+
+* Driving
+* Charging
+* Rest
+
+Environmental conditions:
+Uncontrolled ambient conditions encountered during real-world
+vehicle operation.
+
+============================================================
+4. OPERATING CONDITIONS
+=======================
+
+Driving:
+Natural user-dependent driving including acceleration,
+deceleration, cruising, and regenerative braking.
+
+Driving environments:
+City and highway operation.
+
+Charging:
+Real-world charging with different charging rates and charging
+durations.
+
+Fast charging:
+Up to approximately 0.8C.
+
+Slow charging:
+Approximately 0.15C.
+
+Charging behavior:
+Charging commonly starts below 50% SOC and continues toward full
+charge, while partial charging segments are also present.
+
+Temperature:
+Naturally varying ambient and battery temperature conditions
+across different operating periods, climates, and seasons.
+
+DoD:
+Variable and determined by real-world driving and charging behavior.
+
+============================================================
+5. AVAILABLE DATA
+=================
+
+Raw data:
+
+* Timestamp
+* Cumulative mileage
+* Pack SOC
+* Total current
+* Pack voltage
+* Highest cell voltage
+* Lowest cell voltage
+* Individual cell voltages
+* Battery temperature
+
+Cell-level measurements:
+Voltage measurements are available for all 96 cells in each
+battery pack.
+
+Processed data:
+
+* Capacity-based SOH labels
+* Charge-capacity sequences (Q_HI)
+* Temperature sequences (T_HI)
+* Cell-voltage inconsistency maps
+* 15 engineered point features
+
+SOH labels:
+SOH is obtained using Ah integration with OCV correction.
+
+============================================================
+6. REAL-WORLD OPERATION
+=======================
+
+Operation type:
+Passive observational field data.
+
+Laboratory control:
+No controlled cycling protocol is imposed on the vehicles.
+
+Driving diversity:
+Natural variation in acceleration, deceleration, cruising,
+regenerative braking, traffic conditions, and driving routes.
+
+Charging diversity:
+Different charging rates, charging durations, and partial
+charging behaviors are naturally represented.
+
+Environmental diversity:
+Operation occurs under uncontrolled ambient conditions across
+different seasons and climates.
+
+Real-world coverage:
+The dataset directly represents production EV operation rather
+than laboratory-replayed driving profiles.
+
+============================================================
+7. BATTERY STATE AND DEGRADATION
+================================
+
+SOH:
+Capacity-based SOH labels are provided.
+
+SOH estimation basis:
+Ah integration combined with OCV correction.
+
+Capacity information:
+Charge-capacity sequences are available for degradation analysis.
+
+Cell-level degradation:
+Individual cell voltages enable analysis of cell-to-cell
+heterogeneity and voltage inconsistency.
+
+Health-related features:
+Cell-voltage inconsistency maps and engineered features are
+provided in addition to raw measurements.
+
+Mileage:
+Cumulative mileage is continuously recorded and can be used as a
+long-term usage indicator.
+
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+===================================
+
+Chemistry diversity:
+One NCM chemistry is represented.
+
+Temperature conditions:
+Natural temperature variation is present across real-world
+operating conditions, seasons, and climates.
+
+DoD diversity:
+High natural variation is expected from user-dependent driving
+and partial/full charging behavior.
+
+C-rate diversity:
+Multiple charging rates are explicitly represented, including
+approximately 0.15C slow charging and up to approximately 0.8C
+fast charging. Driving current also varies naturally.
+
+Replicate vehicles:
+300 production vehicles provide a large number of independent
+vehicle-level observations.
+
+Calendar aging:
+Long-term real-world operation over approximately three years
+provides exposure to calendar time, although no dedicated
+calendar-aging protocol is imposed.
+
+Dynamic load profiles:
+Strong coverage through naturally varying driving and charging
+loads.
+
+Real-world operation:
+Strong coverage through continuous field operation of production
+EVs.
+
+============================================================
+9. DISTRIBUTION-RELATED METADATA
+================================
+
+Vehicle contribution:
+The dataset contains observations from 300 vehicles, although the
+amount of recorded data may differ between vehicles.
+
+SOH distribution:
+SOH labels are available and can be evaluated directly from the
+provided processed data.
+
+Cell contribution:
+Each vehicle provides measurements from 96 individual cells.
+
+Operating-condition distribution:
+Driving, charging, and resting periods occur according to
+real-world usage rather than a predefined experimental schedule.
+
+Mileage distribution:
+Cumulative mileage is available for characterizing differences
+in vehicle usage.
+
+============================================================
+10. TEMPORAL INFORMATION
+========================
+
+Monitoring period:
+Approximately three years.
+
+Sampling interval:
+Approximately 10 seconds.
+
+Timestamp:
+Date and time are recorded for monitored observations.
+
+Cumulative mileage:
+Available as a longitudinal usage indicator.
+
+Temporal structure:
+The dataset preserves chronological real-world operation during
+recorded BMS activity.
+
+Long-term degradation:
+The three-year monitoring period enables analysis of degradation
+over extended real-world use.
+
+Recording limitation:
+Data are not continuously recorded while the vehicle is switched
+off.
+
+============================================================
+11. KNOWN DATA QUALITY CONSIDERATIONS
+=====================================
+
+* The dataset is observational rather than experimentally
+  controlled.
+* Operating conditions therefore vary naturally across vehicles
+  and usage patterns.
+* BMS recording stops when the vehicle is off, creating periods
+  without measurements.
+* The dataset contains one primary battery chemistry, limiting
+  cross-chemistry assessment.
+* Temperature, DoD, and C-rate distributions are naturally
+  generated rather than experimentally balanced.
+* The amount of data contributed by individual vehicles may vary.
+* Cell-level voltage measurements provide high spatial resolution
+  but do not imply that all internal cell states are directly
+  measured.
+* SOH labels are processed values derived from Ah integration and
+  OCV correction rather than direct physical measurements.
+* Real-world operation introduces heterogeneous and potentially
+  unbalanced operating conditions.
+
+============================================================
+12. METADATA-BASED QUALITY EVIDENCE
+===================================
+
+Chemistry diversity:
+One NCM chemistry is documented.
+
+Temperature conditions:
+Natural temperature variation across climates and seasons is
+documented.
+
+DoD diversity:
+Variable and partial charging behavior is documented; the exact
+distribution should be quantified from the recorded SOC data.
+
+C-rate diversity:
+Multiple charging rates are explicitly documented.
+
+Replicate vehicles:
+300 production vehicles are available.
+
+Calendar aging:
+Approximately three years of real-world operation provides
+long-term temporal exposure, although no dedicated calendar-aging
+experiment is defined.
+
+Dynamic load profiles:
+Natural driving and charging profiles provide substantial
+dynamic-load diversity.
+
+Real-world operation:
+Directly represented through production EV field data.
+
+Protocol documentation:
+The dataset provides detailed information on vehicle scale,
+battery configuration, BMS measurements, sampling frequency,
+operating states, charging behavior, and SOH-label generation.
+
+============================================================
+13. DATA SOURCES FOR QUALITY ASSESSMENT
+=======================================
+
+Primary dataset source:
+300-EV Real-World BMS Dataset
+
+Primary publication:
+Liu et al. (2025), Nature Communications
+
+Data-level evidence:
+Real-world BMS time-series measurements containing vehicle,
+pack-level, and cell-level variables.
+
+Metadata-level evidence:
+Vehicle count, battery configuration, monitoring duration,
+sampling frequency, charging conditions, and operational
+descriptions reported with the dataset and publication.
+
+Processed-data evidence:
+Provided SOH labels, charge-capacity sequences, temperature
+sequences, voltage inconsistency maps, and engineered features.
+

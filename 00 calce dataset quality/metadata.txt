@@ -1,0 +1,224 @@
+
+============================================================
+CALCE BATTERY DATASET — QUALITY ASSESSMENT METADATA
+============================================================
+
+Dataset:
+CALCE Lithium-ion Battery Dataset
+
+Assessment subset:
+CX2-16
+
+Source:
+Center for Advanced Life Cycle Engineering (CALCE)
+University of Maryland
+
+Official source:
+https://calce.umd.edu/battery-data
+
+============================================================
+1. DATASET IDENTITY
+============================================================
+
+Dataset family:
+CALCE
+
+Cell ID:
+CX2-16
+
+Cell format:
+Prismatic
+
+Chemistry:
+LiCoO2 (LCO)
+
+Nominal capacity:
+1350 mAh
+
+Number of cells assessed:
+1
+
+Cell:
+CX2-16
+
+Dataset type:
+Laboratory battery cycling data
+
+Application:
+Battery degradation / SOH estimation
+
+
+============================================================
+2. TEST CONDITIONS
+============================================================
+
+Charging protocol:
+Constant-current / constant-voltage (CC/CV)
+
+Nominal charging rate:
+0.5C
+
+Charge termination voltage:
+4.2 V
+
+Charge termination current:
+0.05 A
+
+Discharge rate:
+0.5C
+
+Discharge cutoff voltage:
+2.7 V
+
+Temperature:
+Nominal laboratory condition; no temperature variation
+documented for CX2-16
+
+Depth of discharge:
+Primarily full-cycle operation between the documented
+charge and discharge limits
+
+Dynamic load profile:
+Absent for CX2-16
+
+Real-world operation:
+Absent
+
+Calendar aging:
+No dedicated calendar-aging experiment documented for CX2-16
+
+
+============================================================
+3. MEASURED DATA
+============================================================
+
+Available measurements include:
+- Time
+- Voltage
+- Current
+- Temperature
+- Capacity-related measurements
+- Test-step information
+- Cycle information
+
+File formats:
+- XLSX
+- TXT exists in the broader CALCE archive, but CX2-16
+  is documented as an Arbin-tested cell and is therefore
+  represented by Excel data files.
+
+Test procedure information:
+Available through CALCE documentation and file metadata.
+
+
+============================================================
+4. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+1 chemistry (LCO)
+
+Temperature diversity:
+1 nominal temperature condition
+
+DoD diversity:
+Limited; no systematic multi-level DoD protocol documented
+for CX2-16
+
+C-rate diversity:
+1 principal rate (0.5C)
+
+Replicate cells/vehicles:
+1 independent cell
+
+Calendar aging:
+Absent
+
+Dynamic load profiles:
+Absent
+
+Real-world operation:
+Absent
+
+
+============================================================
+5. METADATA-BASED QUALITY EVIDENCE
+============================================================
+
+Correctness:
+Physical plausibility and current sign convention require
+signal-level verification from the recorded measurements.
+
+Completeness:
+Missing values and temporal continuity require direct
+analysis of the CX2-16 files.
+
+Test protocol documentation:
+Available.
+
+Anomaly and noise control:
+Requires signal-level analysis.
+
+Distribution balance:
+SOH range and SOH distribution require calculation from
+cycle-level capacity data.
+
+Cycle contribution per cell:
+One cell; cycle contribution is determined from the
+available valid cycles.
+
+Temporal coherence:
+Requires direct analysis of timestamps, cycle indices,
+and degradation trajectories.
+
+
+============================================================
+6. QUALITY-ASSESSMENT DATA SOURCES
+============================================================
+
+Metadata-derived criteria:
+- Chemistry diversity
+- Temperature conditions
+- DoD diversity
+- C-rate diversity
+- Replicate cells/vehicles
+- Calendar aging
+- Dynamic load profiles
+- Real-world operation
+- Test protocol documentation
+
+Code-derived criteria:
+- Physical plausibility
+- Current sign convention
+- Missing values
+- Temporal continuity
+- Statistical outliers
+- Unexpected signal changes
+- Measurement noise
+- SOH range coverage
+- SOH distribution balance
+- Cycle contribution per cell
+- Monotonic temporal progression
+- Consistent degradation trend
+- Cycle index consistency
+
+
+============================================================
+7. OFFICIAL CALCE INFORMATION
+============================================================
+
+The CALCE documentation describes the CX2 family as prismatic
+LiCoO2 cells with a nominal capacity of 1350 mAh. CX2-16 is
+listed among the cells cycled at a constant current of 0.5C.
+
+The broader CALCE archive contains additional CX2 cells with
+different experimental conditions, including 1C and 3C cycling,
+temperature cycling, and pulsed discharge profiles. These
+conditions are not attributed to CX2-16 and should therefore
+not be used to score the CX2-16 dataset.
+
+Source:
+CALCE Battery Research Data,
+Center for Advanced Life Cycle Engineering,
+University of Maryland.
+

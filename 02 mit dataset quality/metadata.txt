@@ -1,0 +1,385 @@
+
+============================================================
+MIT-STANFORD BATTERY CYCLE LIFE DATASET
+QUALITY ASSESSMENT METADATA
+============================================================
+
+Dataset:
+MIT-Stanford Battery Cycle Life Dataset
+
+Original study:
+Severson et al., Nature Energy, 2019
+
+Title:
+Data-driven prediction of battery cycle life before
+capacity degradation
+
+Source:
+Experimental Data Platform (MATR)
+
+Official repository:
+https://data.matr.io/1/
+
+Publication:
+https://doi.org/10.1038/s41560-019-0356-8
+
+License:
+CC BY 4.0
+
+
+============================================================
+1. DATASET IDENTITY
+============================================================
+
+Number of cells:
+124
+
+Manufacturer:
+A123 Systems
+
+Cell model:
+APR18650M1A
+
+Cell format:
+Cylindrical
+
+Chemistry:
+Lithium Iron Phosphate (LFP) / Graphite
+
+Nominal capacity:
+1.1 Ah
+
+Nominal voltage:
+3.3 V
+
+Dataset type:
+Laboratory battery degradation dataset
+
+Application:
+Battery cycle-life prediction, degradation modeling,
+SOH estimation, and RUL prediction
+
+
+============================================================
+2. TEST ENVIRONMENT
+============================================================
+
+Temperature:
+30°C
+
+Temperature control:
+Forced-convection chamber
+
+Temperature diversity:
+1 condition
+
+Cycling equipment:
+48-channel Arbin LBT battery test system
+
+Cell fixture:
+Four-point-contact cylindrical fixture
+
+
+============================================================
+3. CYCLING PROTOCOL
+============================================================
+
+Charging:
+Fast-charging protocols with one-step or two-step
+charging strategies
+
+Charging protocol notation:
+C1(Q1)-C2 for two-step protocols
+
+Fast-charge termination:
+Charging to approximately 80% SOC, followed by
+1C constant-current/constant-voltage charging
+
+Discharging:
+Single principal discharge protocol
+
+Discharge rate:
+Approximately 4C
+
+Discharge cutoff voltage:
+2.0 V
+
+Charge cutoff voltage:
+3.3 V
+
+Operating temperature:
+30°C
+
+
+============================================================
+4. FAST-CHARGING DIVERSITY
+============================================================
+
+Charging strategy:
+Multiple fast-charging protocols
+
+Protocol structure:
+One-step and two-step charging policies
+
+Charging-rate diversity:
+Present
+
+Charging protocols:
+Different cells were subjected to different
+fast-charging strategies.
+
+Discharge-protocol diversity:
+Limited; the dataset uses one principal discharge
+strategy across the cells.
+
+Therefore:
+Charging diversity should be considered when assessing
+C-rate diversity, while the discharge protocol itself
+should not be treated as multiple independent discharge
+conditions.
+
+
+============================================================
+5. CHARACTERIZATION DATA
+============================================================
+
+Internal resistance:
+Measured at approximately 80% SOC using current pulses.
+
+Resistance protocol:
+10 current pulses
+
+Pulse amplitude:
+Approximately ±3.6C
+
+Pulse duration:
+Approximately 30--33 ms
+
+Available cycle-level quantities include:
+- Cycle index
+- Charge capacity
+- Discharge capacity
+- Charge energy
+- Discharge energy
+- DC internal resistance
+- Maximum temperature
+- Average temperature
+- Minimum temperature
+- Timestamp information
+
+
+============================================================
+6. RAW DATA
+============================================================
+
+Raw measurements include:
+- Time
+- Date/time
+- Step time
+- Step index
+- Cycle index
+- Current
+- Voltage
+- Charge capacity
+- Discharge capacity
+
+Current convention:
+Positive during charging and negative during
+discharging.
+
+Data resolution:
+High-frequency time-series measurements are available
+for individual cells and cycles.
+
+
+============================================================
+7. BATTERY DEGRADATION
+============================================================
+
+Ageing mode:
+Long-term cycling to failure or experimental stopping.
+
+Capacity degradation:
+Progressively recorded through cycle-level discharge
+capacity.
+
+SOH derivation:
+Capacity retention can be calculated from discharge
+capacity relative to the initial/reference capacity.
+
+End-of-life reference:
+80% capacity retention is commonly used for battery
+lifetime analysis; however, the dataset contains cells
+with different degradation trajectories and experimental
+stopping points.
+
+Cycle-life diversity:
+Large variation in the number of cycles achieved across
+cells.
+
+
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+1 chemistry (LFP/Graphite)
+
+Temperature diversity:
+1 temperature condition (30°C)
+
+DoD diversity:
+Limited; the principal discharge protocol is common
+across the dataset
+
+C-rate diversity:
+Present, primarily through multiple fast-charging
+protocols
+
+Replicate cells/vehicles:
+124 independent cells
+
+Calendar aging:
+Absent as a dedicated experimental condition
+
+Dynamic load profiles:
+Absent; the principal discharge protocol is controlled
+rather than a dynamic real-world load profile
+
+Real-world operation:
+Absent; all cells were tested under laboratory
+conditions
+
+
+============================================================
+9. DISTRIBUTION-RELATED METADATA
+============================================================
+
+Number of cells:
+124
+
+Cycle contribution:
+Varies substantially across cells because cells reach
+different degradation states and cycle lives.
+
+SOH range:
+Varies across cells according to their degradation
+trajectories.
+
+SOH distribution:
+Requires calculation from cycle-level discharge
+capacity data.
+
+Cycle contribution balance:
+Requires calculation from the number of valid cycles
+available for each cell.
+
+
+============================================================
+10. TEMPORAL INFORMATION
+============================================================
+
+Cycle indexing:
+Available
+
+Timestamp:
+Available
+
+Test time:
+Available
+
+Step time:
+Available
+
+Cycle sequence:
+Available for each cell.
+
+Temporal continuity:
+Requires direct analysis of the recorded time-series
+data.
+
+Cycle index consistency:
+Requires direct analysis of cycle indices.
+
+
+============================================================
+11. KNOWN DATA QUALITY CONSIDERATIONS
+============================================================
+
+Temperature measurements:
+Temperature measurements may contain measurement
+uncertainties associated with thermal contact and
+measurement conditions.
+
+Time information:
+Some exported versions may contain time-reset or
+timestamp inconsistencies. The structured dataset
+provides corrected/organized representations.
+
+Experimental stopping:
+Not all cells necessarily reach the same degradation
+state or cycle count.
+
+Data heterogeneity:
+Cells were subjected to different fast-charging
+protocols, producing different degradation trajectories.
+
+
+============================================================
+12. METADATA-BASED QUALITY EVIDENCE
+============================================================
+
+Correctness:
+Physical plausibility and current sign convention
+require direct signal-level verification.
+
+Completeness:
+Missing values and temporal continuity require direct
+analysis of the structured/raw data.
+
+Test protocol documentation:
+Available and well documented.
+
+Anomaly and noise control:
+Requires direct statistical and signal-level analysis.
+
+Distribution balance:
+Requires calculation from cell-level SOH and cycle
+distributions.
+
+Temporal coherence:
+Requires direct analysis of timestamps, cycle indices,
+and degradation trajectories.
+
+
+============================================================
+13. DATA SOURCES FOR QUALITY ASSESSMENT
+============================================================
+
+Metadata-derived criteria:
+- Chemistry diversity
+- Temperature conditions
+- DoD diversity
+- C-rate diversity
+- Replicate cells/vehicles
+- Calendar aging
+- Dynamic load profiles
+- Real-world operation
+- Test protocol documentation
+
+Code-derived criteria:
+- Physical plausibility
+- Current sign convention
+- Missing values
+- Temporal continuity
+- Statistical outliers
+- Unexpected signal changes
+- Measurement noise
+- SOH range coverage
+- SOH distribution balance
+- Cycle contribution per cell
+- Monotonic temporal progression
+- Consistent degradation trend
+- Cycle index consistency
+
+

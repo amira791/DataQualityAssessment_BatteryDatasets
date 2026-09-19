@@ -1,0 +1,264 @@
+
+============================================================
+OXFORD BATTERY DEGRADATION DATASET 1 — QUALITY ASSESSMENT
+METADATA
+============================================================
+
+Dataset:
+Oxford Battery Degradation Dataset 1
+
+Source:
+University of Oxford
+Howey Research Group
+
+Official repository:
+https://ora.ox.ac.uk/objects/uuid:03ba4b01-cfed-46d3-9b1a-7d4a7bdf6fac
+
+DOI:
+10.5287/bodleian:KO2kdmYGg
+
+Dataset version:
+Version 1
+
+Data collection period:
+2015-01-08 to 2016-12-31
+
+
+============================================================
+1. DATASET IDENTITY
+============================================================
+
+Number of cells:
+8
+
+Cell model:
+Kokam SLPB533459H4
+
+Cell format:
+Pouch
+
+Chemistry:
+Lithium-ion
+
+Nominal capacity:
+740 mAh
+
+Dataset type:
+Laboratory long-term battery ageing dataset
+
+Application:
+Battery degradation, diagnosis, prognosis, and SOH estimation
+
+
+============================================================
+2. TEST ENVIRONMENT
+============================================================
+
+Environmental temperature:
+40°C
+
+Temperature control:
+Constant-temperature environmental chamber
+
+Temperature diversity:
+1 condition
+
+Tester:
+8-channel Bio-Logic MPG-205
+
+
+============================================================
+3. CYCLING PROTOCOL
+============================================================
+
+Charging:
+Constant-current constant-voltage (CCCV)
+
+Discharging:
+Urban Artemis drive-cycle-derived variable-current profile
+
+Characterization frequency:
+Every 100 drive cycles
+
+Characterization tests:
+- 1-C charge/discharge cycles
+- Pseudo-OCV charge/discharge cycles
+
+Characterization current:
+1-C characterization: 740 mA
+Pseudo-OCV characterization: 40 mA
+
+Dynamic load profile:
+Present
+
+Dynamic profile:
+Urban Artemis-derived variable-current discharge profile
+
+Real-world operation:
+Absent; the profile is laboratory replay of a
+representative driving cycle rather than measurements
+collected from vehicles in operation.
+
+
+============================================================
+4. DATA FILES
+============================================================
+
+Main dataset:
+Oxford_Battery_Degradation_Dataset_1.mat
+
+Main dataset size:
+Approximately 254 MB
+
+Example file:
+ExampleDC_C1.mat
+
+File format:
+MATLAB .mat
+
+Main dataset organization:
+- Cell
+- Cycle
+- Test type
+- Time
+- Voltage
+- Charge
+- Temperature
+
+Available test types:
+- C1ch
+- C1dc
+- OCVch
+- OCVdc
+
+Main recorded variables:
+- Time
+- Voltage
+- Charge
+- Temperature
+
+The example drive-cycle file additionally contains:
+- Current
+- Voltage
+- Time
+- Charge
+- Temperature
+
+
+============================================================
+5. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+1 chemistry
+
+Temperature diversity:
+1 temperature condition (40°C)
+
+DoD diversity:
+Limited; the cells are primarily subjected to the
+same drive-cycle-based cycling protocol
+
+C-rate diversity:
+Limited; the main ageing protocol uses a variable-current
+drive-cycle profile, while characterization includes
+1-C and low-current pseudo-OCV tests. These characterization
+currents are not treated as independent ageing conditions.
+
+Replicate cells/vehicles:
+8 independent cells
+
+Calendar aging:
+Absent as a dedicated experimental condition
+
+Dynamic load profiles:
+Present; Urban Artemis-derived variable-current profile
+
+Real-world operation:
+Absent; laboratory cycling using a prescribed drive-cycle
+profile
+
+
+============================================================
+6. CHARACTERIZATION AND DEGRADATION INFORMATION
+============================================================
+
+Capacity characterization:
+Performed every 100 drive cycles
+
+SOH-related information:
+Capacity measurements are available from characterization
+tests and can be used to derive capacity-based SOH.
+
+Degradation trajectory:
+Long-term ageing measurements are available across the
+testing period.
+
+End-of-life definition:
+No explicit universal end-of-life threshold is specified
+in the dataset description; degradation progression is
+observed through the recorded measurements.
+
+
+============================================================
+7. METADATA-BASED QUALITY EVIDENCE
+============================================================
+
+Correctness:
+Physical plausibility and signal consistency require
+direct analysis of the recorded measurements.
+
+Completeness:
+Missing values and temporal continuity require direct
+analysis of the MATLAB data.
+
+Test protocol documentation:
+Available through the official dataset documentation.
+
+Anomaly and noise control:
+Requires signal-level analysis.
+
+Distribution balance:
+SOH range and SOH distribution require calculation from
+capacity measurements.
+
+Cycle contribution per cell:
+Eight cells are available; the number of valid cycles
+per cell must be determined from the recorded data.
+
+Temporal coherence:
+Requires direct analysis of timestamps, cycle identifiers,
+and degradation trajectories.
+
+
+============================================================
+8. DATA SOURCES FOR QUALITY ASSESSMENT
+============================================================
+
+Metadata-derived criteria:
+- Chemistry diversity
+- Temperature conditions
+- DoD diversity
+- C-rate diversity
+- Replicate cells/vehicles
+- Calendar aging
+- Dynamic load profiles
+- Real-world operation
+- Test protocol documentation
+
+Code-derived criteria:
+- Physical plausibility
+- Current sign convention
+- Missing values
+- Temporal continuity
+- Statistical outliers
+- Unexpected signal changes
+- Measurement noise
+- SOH range coverage
+- SOH distribution balance
+- Cycle contribution per cell
+- Monotonic temporal progression
+- Consistent degradation trend
+- Cycle index consistency
+
+

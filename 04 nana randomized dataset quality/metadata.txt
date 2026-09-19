@@ -1,0 +1,396 @@
+============================================================
+NASA RANDOMIZED AND RECOMMISSIONED BATTERY DATASET
+QUALITY ASSESSMENT METADATA
+============================================================
+
+Dataset:
+Randomized and Recommissioned Battery Dataset
+
+Source:
+NASA
+
+Dataset type:
+Laboratory accelerated life testing dataset for lithium-ion
+battery prognostics and health management
+
+Dataset URL:
+https://data.nasa.gov/dataset/randomized-and-recommissioned-battery-dataset
+
+
+============================================================
+1. DATASET IDENTITY
+============================================================
+
+Dataset name:
+Randomized and Recommissioned Battery Dataset
+
+Provider:
+NASA
+
+Dataset purpose:
+Accelerated life testing and degradation analysis of lithium-ion
+battery packs under controlled and varied load conditions.
+
+Dataset organization:
+Each battery pack is provided as a dedicated CSV file containing
+the continuous cycling history of the pack.
+
+Main battery categories:
+- Regular alternating batteries
+- Recommissioned batteries
+- Second-life batteries
+
+The dataset includes both conventional constant-current profiles
+and variable-current profiles, as well as batteries whose operating
+conditions are modified during their lifetime.
+
+
+============================================================
+2. BATTERY CHARACTERISTICS
+============================================================
+
+Battery type:
+Lithium-ion battery packs
+
+Battery unit:
+Battery pack
+
+Number of identified battery packs:
+Multiple packs across regular, recommissioned, and second-life
+testing categories.
+
+Second-life batteries:
+Some packs are reconstructed from cells that survived previous
+tests and are subsequently subjected to lower-stress operating
+profiles.
+
+Initial battery configuration:
+Varies according to the experimental group and battery pack.
+
+Battery chemistry:
+Lithium-ion; detailed chemistry information should be verified
+from the original NASA documentation where required.
+
+
+============================================================
+3. TEST ENVIRONMENT
+============================================================
+
+Testing type:
+Controlled laboratory accelerated life testing
+
+Operating environment:
+Laboratory-controlled testing conditions
+
+Temperature:
+Battery surface temperature is continuously recorded.
+
+Temperature control:
+The dataset documentation primarily emphasizes controlled
+electrical loading; temperature diversity is not defined as a
+primary experimental factor.
+
+Environmental conditions:
+No real-world environmental exposure is represented.
+
+
+============================================================
+4. CYCLING PROTOCOL
+============================================================
+
+Continuous measurements are recorded throughout the cycling
+history of each battery pack.
+
+Operating modes:
+- -1: Discharge
+-  0: Rest
+-  1: Charge
+
+Reference discharge:
+Mission type 0 corresponds to a reference discharge performed at
+approximately 2.5 A constant current.
+
+Regular mission:
+Mission type 1 corresponds to the regular operating mission
+assigned to the battery pack.
+
+Regular alternating batteries:
+These batteries maintain a consistent load profile throughout
+their lifetime.
+
+Recommissioned batteries:
+The load level is changed at predefined degradation stages,
+typically after the capacity decreases to approximately 2.2 Ah
+and, for some batteries, approximately 2.0 Ah.
+
+Second-life batteries:
+Surviving cells from previous tests are assembled into new battery
+packs and subjected to lower-stress operating profiles.
+
+
+============================================================
+5. LOAD-PROFILE DIVERSITY
+============================================================
+
+Constant-current groups:
+- Approximately 9.30 A
+- Approximately 12.9 A
+- Approximately 14.3 A
+- Approximately 16.0 A
+- Approximately 19.0 A
+
+Variable-current groups:
+Current changes randomly between predefined levels with segment
+durations of approximately 40, 60, or 80 seconds.
+
+Variable-current group 1:
+Approximately 14.3 A average, with current levels between
+approximately 12.9 and 16 A.
+
+Variable-current group 2:
+Approximately 17.0 A average, with current levels between
+approximately 16 and 19 A.
+
+Recommissioned profiles:
+- 16 A -> 14.3 A
+- 14.3 A -> 16 A
+- 16 A -> 12.9 A
+- 16 A -> 9.30 A
+- 16 A -> 14.3 A -> 7.5 A
+- 16 A -> 7.5 A -> 14.3 A
+
+Second-life profiles:
+- 16.0 A -> 9.3 A
+- 14.3 A -> 7.5 A
+- 12.9 A -> 5.0 A
+
+The dataset therefore provides substantial diversity in current
+profiles and load transitions.
+
+
+============================================================
+6. AVAILABLE DATA
+============================================================
+
+File format:
+CSV
+
+File organization:
+One CSV file per battery pack.
+
+Continuously recorded variables:
+- Start time
+- Relative time
+- Operating mode
+- Charger voltage
+- Battery temperature
+
+Discharge mission variables:
+- Load voltage
+- Load current
+- MOSFET temperature
+- Current-sense resistor temperature
+- Mission type
+
+Temporal information:
+Continuous relative time is provided from the beginning of testing
+until battery failure.
+
+
+============================================================
+7. BATTERY STATE AND DEGRADATION
+============================================================
+
+Capacity:
+Capacity degradation is used to define important experimental
+transition points for recommissioned batteries.
+
+Capacity transition points:
+- Approximately 2.2 Ah for the first operating-condition change
+- Approximately 2.0 Ah for the second change in selected batteries
+
+Failure:
+Testing continues over the battery lifetime toward failure.
+
+Degradation information:
+The continuous cycling history enables analysis of degradation
+under different loading strategies.
+
+SOH:
+SOH is not necessarily provided as a directly recorded variable
+and may require derivation from capacity-related measurements or
+reference discharge data.
+
+
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+The dataset represents lithium-ion batteries, but multiple
+chemistries are not identified as a primary experimental factor.
+
+Temperature conditions:
+Temperature is recorded, but multiple controlled temperature
+conditions are not the primary source of dataset diversity.
+
+DoD diversity:
+Different load profiles and degradation stages are represented,
+but explicit DoD levels should be derived or verified from the
+recorded operating data.
+
+C-rate diversity:
+High diversity is provided through multiple current levels and
+variable-current profiles.
+
+Replicate batteries:
+Multiple battery packs are tested under related operating
+conditions.
+
+Calendar aging:
+No dedicated calendar-aging protocol is identified.
+
+Dynamic load profiles:
+Strong coverage through randomly varying current profiles and
+multi-stage recommissioning protocols.
+
+Real-world operation:
+Not represented; the dataset consists of controlled laboratory
+accelerated life testing.
+
+
+============================================================
+9. DISTRIBUTION-RELATED METADATA
+============================================================
+
+Battery categories:
+- Regular alternating batteries
+- Recommissioned batteries
+- Second-life batteries
+
+Load-condition distribution:
+Multiple constant-current levels, variable-current profiles, and
+load transitions are represented.
+
+Degradation distribution:
+Battery lifetimes and degradation trajectories vary across
+operating conditions.
+
+Cycle contribution:
+The number of recorded cycles varies according to the lifetime
+of each battery pack and its degradation behavior.
+
+SOH distribution:
+Requires computation from the recorded degradation/capacity
+information.
+
+
+============================================================
+10. TEMPORAL INFORMATION
+============================================================
+
+Time representation:
+- Start time
+- Relative time
+- Continuous test timeline
+
+Temporal resolution:
+The dataset provides continuously recorded measurements; the
+effective sampling interval depends on the recorded data stream.
+
+Chronological structure:
+Measurements are organized according to the continuous cycling
+history of each battery pack.
+
+Lifetime coverage:
+Each battery file covers the recorded history from the beginning
+of testing toward failure.
+
+Operating-condition transitions:
+For recommissioned batteries, load changes occur at predefined
+degradation stages.
+
+
+============================================================
+11. KNOWN DATA QUALITY CONSIDERATIONS
+============================================================
+
+- The dataset combines several experimental battery categories
+  with different testing strategies.
+- Operating conditions are intentionally heterogeneous across
+  battery packs.
+- Variable-current profiles introduce additional temporal
+  variability compared with constant-current tests.
+- Recommissioned batteries contain deliberate changes in load
+  conditions during their lifetime.
+- Second-life batteries have a different degradation history
+  because they are assembled from cells that survived previous
+  testing.
+- Temperature is measured at the battery surface and additional
+  temperatures are available for the MOSFET and current-sense
+  resistor.
+- SOH may need to be derived rather than directly read from a
+  dedicated SOH signal.
+- The dataset is laboratory-based and therefore does not directly
+  represent real-world vehicle operation.
+
+
+============================================================
+12. METADATA-BASED QUALITY EVIDENCE
+============================================================
+
+Chemistry diversity:
+One lithium-ion battery family is documented; detailed chemistry
+variation is not identified as a primary experimental factor.
+
+Temperature conditions:
+Temperature is measured, but predefined multi-temperature
+testing is not identified.
+
+DoD diversity:
+Requires verification or derivation from the recorded operating
+profiles.
+
+C-rate diversity:
+Multiple current levels are explicitly documented.
+
+Replicate batteries:
+Multiple battery packs are available across several operating
+groups.
+
+Calendar aging:
+No dedicated calendar-aging experiment is documented.
+
+Dynamic load profiles:
+Multiple variable-current and changing-load profiles are
+explicitly documented.
+
+Real-world operation:
+Not present; testing is laboratory-based.
+
+Protocol documentation:
+The dataset provides explicit descriptions of battery categories,
+load conditions, current levels, mission types, and transition
+conditions.
+
+
+============================================================
+13. DATA SOURCES FOR QUALITY ASSESSMENT
+============================================================
+
+Primary dataset source:
+NASA Randomized and Recommissioned Battery Dataset
+
+Dataset documentation:
+NASA dataset documentation and associated experimental
+descriptions.
+
+Data-level evidence:
+CSV files containing continuous time, voltage, current,
+temperature, operating mode, and mission information.
+
+Metadata-level evidence:
+Battery category, current profile, recommissioning stage, and
+second-life configuration descriptions.
+
+

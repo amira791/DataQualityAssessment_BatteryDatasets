@@ -1,0 +1,386 @@
+============================================================
+SANDIA NATIONAL LABORATORIES BATTERY DATASET
+QUALITY ASSESSMENT METADATA
+===========================
+
+Dataset:
+Sandia National Laboratories (SNL) Battery Dataset
+
+Study:
+Degradation of Commercial Lithium-ion Cells as a
+Function of Chemistry and Cycling Conditions
+
+Source:
+Sandia National Laboratories / Battery Archive
+https://batteryarchive.org/
+
+
+Dataset type:
+Laboratory battery degradation dataset
+
+Study duration:
+Nearly three years
+
+============================================================
+
+1. DATASET IDENTITY
+============================================================
+
+Cell format:
+18650 cylindrical cells
+
+Chemistries:
+NCA, NMC, and LFP
+
+Chemistry diversity:
+3 chemistries
+
+Dataset type:
+Laboratory battery degradation dataset
+
+Application:
+Battery degradation analysis, SOH estimation, and
+cycling-condition analysis
+
+============================================================
+2. TEST ENVIRONMENT
+===================
+
+Temperature:
+15°C, 25°C, and 35°C
+
+Temperature diversity:
+3 conditions
+
+Environmental chamber:
+SPX Tenney Model T10C-1.5
+
+Battery testers:
+Arbin SCTS and Arbin high-precision LBT21084
+
+Cell holders:
+18650 battery holders
+
+Temperature measurement:
+K-type thermocouple attached to the cell surface
+
+Wiring:
+18 gauge wire; cable lengths below 8 feet
+
+============================================================
+3. CYCLING PROTOCOL
+===================
+
+Pre-test conditioning:
+Cells were placed in thermal chambers for
+approximately one day to equilibrate to the target
+temperature.
+
+Initial condition:
+Cells were discharged before cycling.
+
+Capacity check:
+Three 0--100% SOC cycles at 0.5C.
+
+Charging:
+CCCV charging with taper to 0.05 A for full-depth
+cycling.
+
+Cycling rounds:
+Approximately 125--1000 cycles at the designated
+test conditions.
+
+Post-round check:
+Capacity check repeated after each cycling round.
+
+Adaptive cycling:
+The number of cycles was reduced when capacity loss
+exceeded 5% during the previous round.
+
+End-of-life criterion:
+80% of rated capacity.
+
+============================================================
+4. CYCLING CONDITION DIVERSITY
+==============================
+
+Temperature:
+15°C, 25°C, and 35°C
+
+Depth of discharge:
+0--100%, 20--80%, and 40--60%
+
+Discharge C-rate:
+0.5C, 1C, 2C, and 3C, depending on chemistry
+
+Charge C-rate:
+0.5C
+
+Charge protocol:
+CCCV for 0--100% DOD and CC for partial-DOD cycling.
+
+Controlled variables:
+Temperature, DOD, and discharge rate
+
+Experimental diversity:
+Different combinations of chemistry, temperature,
+DOD, and discharge rate are tested.
+
+============================================================
+5. CHEMISTRY-SPECIFIC CONDITIONS
+================================
+
+LFP:
+0.5C, 1C, 2C, and 3C discharge conditions
+
+NCA:
+0.5C, 1C, and 2C discharge conditions
+
+NMC:
+0.5C, 1C, 2C, and 3C discharge conditions
+
+Voltage limits for 0--100% DOD:
+
+LFP:
+2.0--3.6 V
+
+NCA:
+2.5--4.2 V
+
+NMC:
+2.0--4.2 V
+
+============================================================
+6. DATA
+=======
+
+Data format:
+CSV
+
+Data types:
+
+* Cycle-level summary data
+* High-resolution time-series data
+
+Cycle-level measurements include:
+
+* Cycle index
+* Start time
+* End time
+* Test time
+* Minimum current
+* Maximum current
+* Minimum voltage
+* Maximum voltage
+* Charge capacity
+* Discharge capacity
+* Charge energy
+* Discharge energy
+
+Time-series measurements include:
+
+* Time
+* Voltage
+* Current
+* Temperature
+
+SOH-related quantity:
+Discharge capacity provides the main capacity-based
+indicator for degradation and SOH estimation.
+
+============================================================
+7. BATTERY DEGRADATION
+======================
+
+Ageing mode:
+Long-term cycling under controlled conditions.
+
+Capacity degradation:
+Tracked through repeated capacity checks and
+cycle-level discharge capacity.
+
+End-of-life:
+80% of rated capacity.
+
+Adaptive cycling:
+Cycling rounds are adjusted according to the observed
+capacity loss.
+
+Degradation diversity:
+Different degradation trajectories are obtained across
+chemistries and cycling conditions.
+
+Cycle contribution:
+Varies because cycling duration is adapted according
+to degradation.
+
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+===================================
+
+Chemistry diversity:
+3 chemistries (LFP, NCA, and NMC)
+
+Temperature diversity:
+3 temperature conditions (15°C, 25°C, and 35°C)
+
+DoD diversity:
+3 DOD ranges (0--100%, 20--80%, and 40--60%)
+
+C-rate diversity:
+Multiple discharge rates from 0.5C to 3C, depending
+on chemistry
+
+Replicate cells/vehicles:
+Multiple replicate cells are available for experimental
+conditions.
+
+Calendar aging:
+Absent as a dedicated experimental condition
+
+Dynamic load profiles:
+Absent; cycling uses controlled laboratory protocols.
+
+Real-world operation:
+Absent; all testing is performed under laboratory
+conditions.
+
+============================================================
+9. DISTRIBUTION-RELATED METADATA
+================================
+
+Replicate cells:
+Multiple cells are tested under comparable conditions.
+
+Cycle contribution:
+Varies between cells because cycling rounds are
+adaptively adjusted according to degradation.
+
+SOH range:
+Cells are cycled toward the 80% capacity-retention
+criterion.
+
+SOH distribution:
+Requires calculation from cycle-level discharge
+capacity data.
+
+Cycle contribution balance:
+Requires calculation from the number of valid cycles
+available for each cell.
+
+============================================================
+10. TEMPORAL INFORMATION
+========================
+
+Cycle index:
+Available.
+
+Start time:
+Available.
+
+End time:
+Available.
+
+Test time:
+Available.
+
+Cycle sequence:
+Available.
+
+Temporal continuity:
+Requires direct analysis of timestamps and time
+differences.
+
+Cycle index consistency:
+Requires direct analysis of cycle indices.
+
+Degradation progression:
+Requires direct analysis of capacity evolution over
+successive cycles.
+
+============================================================
+11. KNOWN DATA QUALITY CONSIDERATIONS
+=====================================
+
+Experimental control:
+Temperature, DOD, and discharge rate are systematically
+controlled.
+
+Adaptive cycling:
+The number of cycles per round changes according to
+the observed degradation rate.
+
+Data resolution:
+Both cycle-level and high-resolution time-series data
+are available.
+
+Replication:
+Multiple cells are tested under comparable conditions.
+
+Condition diversity:
+The dataset combines multiple chemistries,
+temperatures, DOD ranges, and discharge rates.
+
+Measurement information:
+Voltage, current, temperature, capacity, energy, and
+timing information are available.
+
+============================================================
+12. METADATA-BASED QUALITY EVIDENCE
+===================================
+
+Correctness:
+Physical plausibility and current sign convention
+require direct signal-level verification.
+
+Completeness:
+Missing values and temporal continuity require direct
+analysis of the CSV data.
+
+Test protocol documentation:
+Experimental conditions and cycling procedures are
+well documented.
+
+Anomaly and noise control:
+Requires direct statistical and signal-level analysis.
+
+Distribution balance:
+Requires calculation from cell-level SOH and cycle
+distributions.
+
+Temporal coherence:
+Requires direct analysis of timestamps, cycle indices,
+and degradation trajectories.
+
+============================================================
+13. DATA SOURCES FOR QUALITY ASSESSMENT
+=======================================
+
+Metadata-derived criteria:
+
+* Chemistry diversity
+* Temperature conditions
+* DoD diversity
+* C-rate diversity
+* Replicate cells/vehicles
+* Calendar aging
+* Dynamic load profiles
+* Real-world operation
+* Test protocol documentation
+
+Code-derived criteria:
+
+* Physical plausibility
+* Current sign convention
+* Missing values
+* Temporal continuity
+* Statistical outliers
+* Unexpected signal changes
+* Measurement noise
+* SOH range coverage
+* SOH distribution balance
+* Cycle contribution per cell
+* Monotonic temporal progression
+* Consistent degradation trend
+* Cycle index consistency
+
