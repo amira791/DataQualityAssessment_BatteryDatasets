@@ -1,0 +1,23 @@
+criterion,aspect,score,finding
+Correctness,Physical plausibility,++,"240/30,528,260 voltage/temperature readings (0.001%) outside the general Li-ion envelope (voltage 2.5-4.2V; temperature 0.0-45.0C during charge, -20.0-60.0C during discharge). Current excluded from this check for this dataset -- see module docstring."
+Correctness,Current sign convention,++,"2,076/2,076 segments (100.00%) show charge accumulating during 'ch' segments and depleting during 'dc' segments, as expected (derived from d(charge)/dt direction -- no raw Current field in this file)."
+Completeness,Missing values,++,"0.0000% missing across essential columns ['t', 'v', 'q'] (temperature excluded -- metadata notes it is not recorded in every early cycle)."
+Completeness,Temporal continuity,++,Average within-segment sampling continuity (no gaps >5x the median interval): 100.00%.
+Completeness,Test protocol documentation,++,7/7 essential protocol elements documented (100%).
+Anomaly and noise control,Statistical outliers,++,0.000% of per-cycle 1-C discharge capacity values fall outside the 3xIQR range.
+Anomaly and noise control,Unexpected signal changes,o,1.590% of cycle-to-cycle capacity transitions fall outside the 3xIQR range of transition sizes (first transition per cell excluded).
+Anomaly and noise control,Measurement noise,++,"Median sample-to-sample voltage fluctuation during pseudo-OCV (~0.05C, near-resting) segments is 0.0034% of a 3.65V reference."
+Representativeness and diversity,Chemistry diversity,o,1 chemistry/cell model (Kokam SLPB533459H4) across the whole dataset -- no per-cell chemistry field exists in the .mat to count from.
+Representativeness and diversity,Temperature conditions,++,"Measured temperature range [0.5, 42.9]C (chamber setpoint 40C per metadata) -> 24 effective condition(s)."
+Representativeness and diversity,DoD diversity,o,"1 DoD condition per metadata (""Limited; cells primarily subjected to the same drive-cycle-based cycling protocol"") -- no per-cycle DoD field to count independently."
+Representativeness and diversity,C-rate diversity,o,1 ageing C-rate condition per metadata's own framing (the 1-C and pseudo-OCV characterization currents are explicitly not treated as independent ageing conditions).
+Representativeness and diversity,Replicate cells,+,8 cells cycled under the identical documented protocol.
+Representativeness and diversity,Calendar aging,-,Metadata reports calendar aging is absent as a dedicated experimental condition.
+Representativeness and diversity,Dynamic load profiles,+,"Metadata: Urban Artemis-derived variable-current drive-cycle profile is present, but this is a single representative profile (not multiple varied ones), and the actual per-cycle drive-cycle current is not recorded in this main .mat file (only in the separate illustrative ExampleDC_C1.mat) -- so this cannot be verified from the data being scored here, only asserted from documentation."
+Representativeness and diversity,Real-world operation,-,"Metadata: real-world operation is absent; the discharge profile is a laboratory replay of a representative drive cycle, not measurements from vehicles in operation."
+Distribution balance,SOH range coverage,++,75.0% of cells reach SOH < 80% (end of life).
+Distribution balance,SOH distribution balance,++,Largest SOH bin holds 47.4% of all characterisation-cycle records.
+Distribution balance,Cycle contribution per cell,+,Coefficient of variation of characterisation-cycle count across cells: 23.8%.
+Temporal coherence,Monotonic temporal progression,++,100.00% of consecutive characterisation-cycle indices are non-decreasing.
+Temporal coherence,Consistent degradation trend,++,"99.80% of cycle-to-cycle SOH transitions are non-increasing beyond a 3% noise tolerance (per-transition, not an all-or-nothing per-cell gate)."
+Temporal coherence,Cycle index consistency,++,100.00% of characterisation-cycle indices are non-duplicated within their cell.
