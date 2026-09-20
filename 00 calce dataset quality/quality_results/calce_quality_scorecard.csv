@@ -1,0 +1,24 @@
+criterion,aspect,score,finding
+Correctness,Physical plausibility,++,"10/74,880 readings (0.013%) outside the CX2-specific practical QC envelope (voltage 2.65-4.25V, charge current -4.15-1.35A, discharge current -4.15-1.35A, capacity 0.0-1.42Ah). See console for the per-signal breakdown."
+Correctness,Documented vs. observed current rate,++,"CALCE documentation specifies a 0.5C charge rate (0.675A for 1.35Ah nominal). Median observed Max_Current is 1.174A (implied rate 0.87C); 0.0% of cycles exceed twice the documented rate. Reported as a finding, not folded into the physical-plausibility score."
+Correctness,Current sign convention,+,"12,414/12,480 cycles (99.47%) show positive charge current and negative discharge current, as documented."
+Completeness,Missing values,++,"0.0000% missing across essential columns ['Cycle_Index', 'Discharge_Capacity (Ah)', 'Min_Voltage (V)', 'Max_Voltage (V)']."
+Completeness,Temporal continuity,++,Average cycle-index continuity across cells: 100.00%.
+Completeness,Test protocol documentation,++,"7/7 files (100%) carry a fully parseable, documented protocol (chemistry, temperature, DoD, C-rate) in their filenames."
+Anomaly and noise control,Statistical outliers,+,0.537% of discharge-capacity readings fall outside the 3xIQR range.
+Anomaly and noise control,Unexpected signal changes,-,"11.182% of cycle-to-cycle capacity transitions fall outside the 3xIQR range of transition sizes (first, formation-related transition excluded per cell)."
+Anomaly and noise control,Measurement noise,+,"Median sample-to-sample voltage fluctuation during low-current (rest/CV-tail) periods is 0.6216% of a 3.7V reference, computed from the raw timeseries files (not from capacity, which trends with aging rather than reflecting sensor noise)."
+Representativeness and diversity,Chemistry diversity,o,1 chemistry value(s) across the subset (['LCO']) with no variation between cells -> matches table condition '1 without variation'.
+Representativeness and diversity,Temperature conditions,o,"1 temperature setpoint(s) ([np.int64(25)]°C), fixed across the whole subset -> matches table condition 'fixed'."
+Representativeness and diversity,DoD diversity,o,"1 DoD range(s) (['0-100']), fixed across the whole subset -> matches table condition 'fixed'."
+Representativeness and diversity,C-rate diversity,o,"1 charge/discharge C-rate combination(s), fixed across the whole subset -> matches table condition 'fixed'."
+Representativeness and diversity,Replicate cells,+,7 cells cycled under the identical documented protocol.
+Representativeness and diversity,Calendar aging,-,CALCE documentation reports no dedicated calendar-aging experiment for this CX2 subset.
+Representativeness and diversity,Dynamic load profiles,-,CALCE documentation states cycling follows a fixed CC/CV protocol; no dynamic/drive-cycle load profiles are used.
+Representativeness and diversity,Real-world operation,-,Dataset is laboratory-only per official documentation; no field/real-world operation data was collected.
+Distribution balance,SOH range coverage,++,100.0% of cells reach SOH < 80% (end of life).
+Distribution balance,SOH distribution balance,++,Largest SOH bin holds 30.7% of all cycle records.
+Distribution balance,Cycle contribution per cell,+,Coefficient of variation of cycle-life across cells: 14.2%.
+Temporal coherence,Monotonic temporal progression,++,100.00% of consecutive cycle-index steps are non-decreasing.
+Temporal coherence,Consistent degradation trend,+,"96.53% of cycle-to-cycle SOH transitions are non-increasing beyond a 3% noise tolerance (measured across all cells, not an all-or-nothing per-cell gate)."
+Temporal coherence,Cycle index consistency,++,100.00% of cycle-index values are non-duplicated within their cell.
