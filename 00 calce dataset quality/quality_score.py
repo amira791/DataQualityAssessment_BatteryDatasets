@@ -12,6 +12,15 @@ else — chemistry/temperature/DoD/C-rate diversity, physical bounds
 violations, missing values, noise, distribution balance, temporal
 coherence — is computed dynamically from the CSV files and their filenames.
 
+Physical plausibility is checked against the general Li-ion envelope,
+voltage and current only:
+    voltage  fixed 2.5 - 4.2 V window
+    current  per-cell C-rate envelope (charge <= 1.0C, discharge <= 5.0C),
+             with 1C taken as the cell's rated capacity in Ah
+Temperature and capacity are deliberately excluded from the plausibility
+check; capacity still feeds the outlier / SOH / distribution sections, and
+temperature is unused here (CALCE CX2 is single-temperature).
+
 Output: a scorecard CSV and a scorecard figure, both saved to
 ./quality_results/
 """
@@ -67,29 +76,39 @@ PROTOCOL_METADATA = {
     "discharge_cutoff": True,
 }
 
-# Physical spec bounds -- CX2 family, rated capacity 1.35Ah (1350 mAh).
-# Voltage: CALCE-documented cutoffs (calce.umd.edu/battery-data), +-0.05V
-# practical tolerance.
-# Charge current: 0.5C x 1.35Ah = 0.675A documented; practical QC ceiling
-# +0.75A. NOTE: actual Max_Current in this file runs ~1.1-1.3A on nearly
-# every cycle -- well above even this practical ceiling. That is treated as
-# a genuine, confirmed finding (see "Documented vs. observed current rate"
-# below), not adjusted away by widening this bound further.
-# Discharge current: documented max magnitude 3C x 1.35Ah = 4.05A; practical
-# QC floor -4.15A. Same combined range applied to both Min_Current and
-# Max_Current, as specified.
-# Capacity: 0-1.42Ah practical QC (nominal 1.35Ah + tolerance). Re-included
-# after being dropped previously -- that removal was because the earlier
-# 1.15Ah bound (borrowed from CS2_3) false-positived on normal high-SOH
-# readings; this 1.42Ah figure is CX2-specific and should not have that
-# problem (95th-pct discharge capacity observed was ~1.27Ah).
-VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.65, 4.25
-CHARGE_CURRENT_MIN_A, CHARGE_CURRENT_MAX_A = -4.15, 1.35 
-DISCHARGE_CURRENT_MIN_A, DISCHARGE_CURRENT_MAX_A = -4.15, 1.35 
-CAPACITY_MIN_AH, CAPACITY_MAX_AH = 0.0, 1.42
-NOMINAL_CAPACITY_AH = 1.35                      # 1350 mAh per CX2 family metadata.txt
-DOCUMENTED_CHARGE_C_RATE = 0.5
-NOMINAL_VOLTAGE_V = 3.7                         # typical LCO operating voltage, used only to express noise as a %
+# ============================================================================
+# GENERAL Li-ion PHYSICAL ENVELOPE (dataset-agnostic, matching the Oxford
+# code's approach). Applied uniformly across the suite so that physical-
+# plausibility scores remain comparable between datasets.
+#
+# Voltage:
+#   2.5 - 4.2 V -- common datasheet discharge / charge cutoffs for the
+#   conventional 4.2 V Li-ion cell family. This is a QC guard rail, not a
+#   claim about any specific cell's datasheet limits.
+#   Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
+#
+# Current:
+#   Expressed as C-rate, not amperes. There is no scientifically valid
+#   single ampere range for all Li-ion cells. Since 1C is numerically equal
+#   to the cell's rated capacity in Ah, a C-rate bound adapts automatically
+#   to every cell size and chemistry. The QC envelope uses the UPPER bounds
+#   of the general rule so that no legitimate cell of the 4.2 V family is
+#   false-flagged:
+#       charge    |I| <= 1.0C
+#       discharge |I| <= 5.0C
+#   The actual ampere limit for a given cell is computed at runtime as
+#   C_rate x that cell's own rated capacity in Ah.
+#
+# Temperature and capacity:
+#   Deliberately excluded from the physical-plausibility check per the
+#   stated scope. Capacity still feeds the outlier / SOH / distribution
+#   sections; temperature is unused here (CALCE CX2 is single-temperature).
+# ============================================================================
+VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.5, 4.2
+C_RATE_CHARGE_MAX    = 1.0   # upper bound of "maximum charge" C-rate rule
+C_RATE_DISCHARGE_MAX = 5.0   # upper bound of "maximum continuous discharge" C-rate rule
+NOMINAL_VOLTAGE_V = 3.7      # typical LCO operating voltage, used only to express noise as a %
+NOMINAL_CAPACITY_AH = 1.35   # CX2 family nominal capacity (1350 mAh), used to derive 1C
 
 # ============================================================================
 # SCORING FUNCTIONS (thresholds copied from the quality-assessment table)
@@ -123,13 +142,13 @@ def score_doc(pct):
     return "-"
 
 def score_diversity_count(n):
-    """>=3 / 2 / 1 (updated table: single value = 'o', no '--' tier for this row)"""
+    """>=3 / 2 / 1"""
     if n >= 3: return "++"
     if n == 2: return "+"
-    return "o"  # n == 1 (or 0, defensively)
+    return "o"
 
 def score_replicates(n):
-    """>=10 / 5-9 / <5 (updated table: no '--' tier for this row)"""
+    """>=10 / 5-9 / <5"""
     if n >= 10: return "++"
     if n >= 5: return "+"
     return "o"
@@ -228,53 +247,91 @@ print(f"Detected columns -> cycle:{col_cycle} dchg_cap:{col_dchg_cap} chg_cap:{c
 # ============================================================================
 print("== 1. Correctness ==")
 
+# ---------------------------------------------------------------------------
+# Physical plausibility -- voltage (fixed bounds, same for all cells)
+# ---------------------------------------------------------------------------
 viol, total = 0, 0
-per_signal = []
-for label, col, lo, hi in [
-    ("Min_Voltage", col_min_v, VOLTAGE_MIN_V, VOLTAGE_MAX_V),
-    ("Max_Voltage", col_max_v, VOLTAGE_MIN_V, VOLTAGE_MAX_V),
-    ("Min_Current", col_min_i, DISCHARGE_CURRENT_MIN_A, DISCHARGE_CURRENT_MAX_A),
-    ("Max_Current", col_max_i, CHARGE_CURRENT_MIN_A, CHARGE_CURRENT_MAX_A),
-    ("Discharge_Capacity", col_dchg_cap, CAPACITY_MIN_AH, CAPACITY_MAX_AH),
-    ("Charge_Capacity", col_chg_cap, CAPACITY_MIN_AH, CAPACITY_MAX_AH),
-]:
+for label, col in [("Min_Voltage", col_min_v), ("Max_Voltage", col_max_v)]:
     if col:
         s = data[col].dropna()
-        v = ((s < lo) | (s > hi)).sum()
+        if len(s) == 0:
+            continue
+        v = ((s < VOLTAGE_MIN_V) | (s > VOLTAGE_MAX_V)).sum()
         viol += v
         total += len(s)
-        pct = v / len(s) * 100 if len(s) else 0
-        per_signal.append((label, col, lo, hi, v, len(s), pct))
+        pct = v / len(s) * 100
         print(f"    Physical plausibility breakdown -- {label} ({col}): "
-              f"{v:,}/{len(s):,} ({pct:.2f}%) outside [{lo}, {hi}], "
+              f"{v:,}/{len(s):,} ({pct:.2f}%) outside [{VOLTAGE_MIN_V}, {VOLTAGE_MAX_V}], "
               f"observed range [{s.min():.4f}, {s.max():.4f}], "
               f"5th/95th pct [{s.quantile(0.05):.4f}, {s.quantile(0.95):.4f}]")
+
+# ---------------------------------------------------------------------------
+# Physical plausibility -- current (per-cell C-rate envelope)
+#   For CALCE CX2 the rated capacity is documented (1.35 Ah), so 1C = 1.35 A.
+# ---------------------------------------------------------------------------
+n_charge = n_discharge = 0
+viol_charge = viol_discharge = 0
+if col_max_i and col_min_i:
+    charge_limit_A    = NOMINAL_CAPACITY_AH * C_RATE_CHARGE_MAX       # 1.35 A
+    discharge_limit_A = NOMINAL_CAPACITY_AH * C_RATE_DISCHARGE_MAX    # 6.75 A
+
+    # Charge phase: Max_Current > 0. Flag anything above 1C.
+    charge_mask = data[col_max_i] > 0
+    viol_charge = (data.loc[charge_mask, col_max_i] > charge_limit_A).sum()
+    n_charge = int(charge_mask.sum())
+
+    # Discharge phase: Min_Current < 0. Flag anything below -5C.
+    discharge_mask = data[col_min_i] < 0
+    viol_discharge = (data.loc[discharge_mask, col_min_i] < -discharge_limit_A).sum()
+    n_discharge = int(discharge_mask.sum())
+
+    viol += int(viol_charge) + int(viol_discharge)
+    total += n_charge + n_discharge
+
+    pct_charge = viol_charge / n_charge * 100 if n_charge else 0
+    pct_discharge = viol_discharge / n_discharge * 100 if n_discharge else 0
+    print(f"    Physical plausibility breakdown -- Max_Current (charge, "
+          f"envelope {C_RATE_CHARGE_MAX}C = {charge_limit_A:.3f}A): {viol_charge:,}/{n_charge:,} "
+          f"({pct_charge:.2f}%) exceed the envelope")
+    print(f"    Physical plausibility breakdown -- Min_Current (discharge, "
+          f"envelope -{C_RATE_DISCHARGE_MAX}C = -{discharge_limit_A:.3f}A): "
+          f"{viol_discharge:,}/{n_discharge:,} ({pct_discharge:.2f}%) exceed the envelope")
+
 pct_implausible = (viol / total * 100) if total else 0
 add("Correctness", "Physical plausibility", score_pct_low_is_good(pct_implausible),
-    f"{viol:,}/{total:,} readings ({pct_implausible:.3f}%) outside the CX2-specific practical QC "
-    f"envelope (voltage {VOLTAGE_MIN_V}-{VOLTAGE_MAX_V}V, charge current {CHARGE_CURRENT_MIN_A}-"
-    f"{CHARGE_CURRENT_MAX_A}A, discharge current {DISCHARGE_CURRENT_MIN_A}-{DISCHARGE_CURRENT_MAX_A}A, "
-    f"capacity {CAPACITY_MIN_AH}-{CAPACITY_MAX_AH}Ah). See console for the per-signal breakdown.")
+    f"{viol:,}/{total:,} voltage/current readings ({pct_implausible:.3f}%) outside the general "
+    f"Li-ion envelope. Voltage checked against the fixed {VOLTAGE_MIN_V}-{VOLTAGE_MAX_V} V window. "
+    f"Current checked against a C-rate envelope (charge ≤ {C_RATE_CHARGE_MAX}C, discharge ≤ "
+    f"{C_RATE_DISCHARGE_MAX}C), with 1C = {NOMINAL_CAPACITY_AH} Ah for the CX2 family. "
+    f"Temperature and capacity deliberately excluded from this check.")
 
-# Not a plausibility check, but a genuine finding worth reporting on its own:
-# CALCE documents a 0.5C charge rate for all CX2 cells, but the actual
-# Max_Current in this file runs ~1.1-1.3A on nearly every cycle -- well
-# above the 0.675A that 0.5C of a 1.35Ah cell implies, and above even the
-# 0.75A practical QC ceiling. This holds broadly across cycles rather than
-# as an occasional spike, so it looks like a real mismatch between the
-# documented protocol and this specific (Battery-Archive-reprocessed) file.
+# ---------------------------------------------------------------------------
+# Documented vs. observed current rate
+#   CALCE CX2 documents a 0.5C charge rate. This aspect checks whether the
+#   observed per-cycle current magnitude is consistent with that documented
+#   rate, given the CX2 rated capacity. A mismatch is a protocol finding,
+#   not a physical-plausibility violation, and is scored separately.
+# ---------------------------------------------------------------------------
 if col_max_i:
     max_i_vals = data[col_max_i].dropna()
-    documented_current_a = DOCUMENTED_CHARGE_C_RATE * NOMINAL_CAPACITY_AH
+    documented_charge_C = 0.5
+    documented_current_a = documented_charge_C * NOMINAL_CAPACITY_AH
     implied_c_rate = max_i_vals.median() / NOMINAL_CAPACITY_AH
     pct_far_from_documented = (max_i_vals > 2 * documented_current_a).mean() * 100
-    add("Correctness", "Documented vs. observed current rate", "o" if pct_far_from_documented > 50 else "++",
-        f"CALCE documentation specifies a {DOCUMENTED_CHARGE_C_RATE}C charge rate "
+    add("Correctness", "Documented vs. observed current rate",
+        "o" if pct_far_from_documented > 50 else "++",
+        f"CALCE documentation specifies a {documented_charge_C}C charge rate "
         f"({documented_current_a:.3f}A for {NOMINAL_CAPACITY_AH}Ah nominal). Median observed "
         f"Max_Current is {max_i_vals.median():.3f}A (implied rate {implied_c_rate:.2f}C); "
         f"{pct_far_from_documented:.1f}% of cycles exceed twice the documented rate. Reported as "
         f"a finding, not folded into the physical-plausibility score.")
+else:
+    add("Correctness", "Documented vs. observed current rate", "o",
+        "Max_Current column not present; documented-vs-observed comparison could not be performed.")
 
+# ---------------------------------------------------------------------------
+# Current sign convention
+# ---------------------------------------------------------------------------
 if col_min_i and col_max_i:
     valid_cycles = data.dropna(subset=[col_min_i, col_max_i])
     consistent = ((valid_cycles[col_max_i] > 0) & (valid_cycles[col_min_i] < 0)).sum()
@@ -312,18 +369,12 @@ pct_continuity = np.mean(cont_pct_list) if cont_pct_list else 100
 add("Completeness", "Temporal continuity", score_pct_high_is_good(pct_continuity),
     f"Average cycle-index continuity across cells: {pct_continuity:.2f}%.")
 
-# Test protocol documentation
 documented_protocol = sum(PROTOCOL_METADATA.values())
 total_protocol_elements = len(PROTOCOL_METADATA)
 pct_doc = documented_protocol / total_protocol_elements * 100
-
-add(
-    "Completeness",
-    "Test protocol documentation",
-    score_doc(pct_doc),
-    f"{documented_protocol}/{total_protocol_elements} essential protocol "
-    f"elements documented ({pct_doc:.0f}%)."
-)
+add("Completeness", "Test protocol documentation", score_doc(pct_doc),
+    f"{documented_protocol}/{total_protocol_elements} essential protocol elements documented "
+    f"({pct_doc:.0f}%).")
 
 # ============================================================================
 # 3. ANOMALY AND NOISE CONTROL
@@ -348,14 +399,9 @@ if col_dchg_cap and col_cycle:
         g = grp.sort_values(col_cycle)
         caps = g[col_dchg_cap].dropna().values
         if len(caps) > 1:
-            # skip the first transition (formation -> cycle 1 is expected to be large)
             all_diffs.extend(np.diff(caps)[1:])
 all_diffs = np.array(all_diffs)
 if len(all_diffs) > 0:
-    # Robust, self-calibrating threshold (mirrors the 3xIQR rule used for
-    # statistical outliers, applied here to the cycle-to-cycle *differences*
-    # rather than the raw values). Catches real jumps without flagging the
-    # periodic reference-performance-test bumps that are normal in aging data.
     q1, q3 = np.percentile(all_diffs, [25, 75])
     iqr = q3 - q1
     lo, hi = q1 - 3 * iqr, q3 + 3 * iqr
@@ -388,7 +434,7 @@ for f in ts_files:
     v = ts[v_col].dropna()
     if i_col is not None:
         i = ts[i_col].reindex(v.index)
-        rest_mask = i.abs() < 0.05  # near-zero current -> rest / CV-tail: true signal should be flat
+        rest_mask = i.abs() < 0.05
         v_signal = v[rest_mask] if rest_mask.sum() > 20 else v
     else:
         v_signal = v
@@ -404,8 +450,6 @@ add("Anomaly and noise control", "Measurement noise", score_noise(pct_noise),
 
 # ============================================================================
 # 4. REPRESENTATIVENESS AND DIVERSITY
-# (chemistry / temperature / DoD / C-rate parsed dynamically from filenames;
-#  calendar aging / dynamic load / real-world are the hardcoded metadata facts)
 # ============================================================================
 print("\n== 4. Representativeness and diversity ==")
 
@@ -498,12 +542,6 @@ add("Temporal coherence", "Monotonic temporal progression", score_pct_high_is_go
     f"{pct_ordered:.2f}% of consecutive cycle-index steps are non-decreasing.")
 
 if not soh_df.empty:
-    # Scored per TRANSITION (matches how the table's thresholds read, and how
-    # "monotonic temporal progression" above is scored) rather than requiring
-    # an entire cell's whole cycle life to have zero violations — a single
-    # noisy uptick (e.g. a reference-performance-test cycle) would otherwise
-    # fail the whole cell even though the cell's overall trend is clearly
-    # degrading.
     total_transitions, violating_transitions = 0, 0
     for cell_id, grp in soh_df.groupby("cell_id"):
         g = grp.sort_values(col_cycle) if col_cycle else grp
@@ -511,7 +549,7 @@ if not soh_df.empty:
         if len(soh_vals) > 1:
             diffs = np.diff(soh_vals)
             total_transitions += len(diffs)
-            violating_transitions += (diffs > 0.03).sum()  # >3% SOH recovery = violation
+            violating_transitions += (diffs > 0.03).sum()
     pct_consistent = (1 - violating_transitions / total_transitions) * 100 if total_transitions else 100
 else:
     pct_consistent = 100
