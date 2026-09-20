@@ -8,10 +8,12 @@ csv_files = sorted(
     glob.glob(os.path.join(DATASET_PATH, "battery*.csv"))
 )
 
-print("NASA Dataset columns:\n")
+if not csv_files:
+    raise FileNotFoundError("No battery*.csv files found.")
 
-for file in csv_files[:1]:
-    df = pd.read_csv(file, nrows=5)
+df = pd.read_csv(csv_files[0], nrows=5)
 
-    for col in df.columns:
-        print(col)
+print("NASA R&R Dataset columns:")
+
+for col in df.columns:
+    print(col)
