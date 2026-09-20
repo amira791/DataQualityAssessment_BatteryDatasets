@@ -18,11 +18,12 @@ battery health assessment using production electric vehicles.
 
 Dataset availability:
 Publicly available dataset and associated implementation code.
+https://github.com/Horaceliu1010/Multi-modal-SOH-estimation-framework
+
 
 ============================================================
-
 1. DATASET IDENTITY
-   ============================================================
+============================================================
 
 Dataset name:
 300-EV Real-World BMS Dataset
@@ -52,12 +53,18 @@ Rated pack capacity:
 Total monitored cells:
 28,800 cells (300 vehicles x 96 cells)
 
+File layout (as distributed):
+One CSV file per vehicle, named vin<N>.csv.
+The publicly available snapshot contains 94 vehicle files
+(vin1, vin2, ..., vin291 with gaps).
+
+
 ============================================================
 2. VEHICLE AND BATTERY CHARACTERISTICS
 ======================================
 
 Vehicle type:
-Production electric vehicles
+Production electric vehicles (passenger and commercial)
 
 Battery type:
 NCM lithium-ion battery packs
@@ -66,13 +73,17 @@ Pack configuration:
 96 cells in series
 
 Cell-level monitoring:
-Individual voltages of all 96 cells are recorded for each vehicle.
+Individual voltages of all 96 cells are recorded for each
+vehicle, stored as a tilde-separated string in the
+"batteryvoltage" column of each row.
 
 Battery capacity:
 Approximately 155 Ah rated capacity per pack.
 
 Fleet scale:
-300 vehicles representing real-world vehicle operation.
+300 vehicles in the full dataset; 94 available in the current
+snapshot.
+
 
 ============================================================
 3. DATA ACQUISITION
@@ -88,17 +99,20 @@ Sampling frequency:
 
 Recording behavior:
 BMS recording is active during monitored vehicle operation and
-stops when the vehicle is switched off.
+stops when the vehicle is switched off. Rows recorded while the
+vehicle is off carry sentinel values (see Section 7).
 
 Operational states:
 
 * Driving
 * Charging
 * Rest
+* Charging complete / taper
 
 Environmental conditions:
 Uncontrolled ambient conditions encountered during real-world
 vehicle operation.
+
 
 ============================================================
 4. OPERATING CONDITIONS
@@ -116,41 +130,56 @@ Real-world charging with different charging rates and charging
 durations.
 
 Fast charging:
-Up to approximately 0.8C.
+Up to approximately 0.8C (approximately 124 A at 155 Ah).
 
 Slow charging:
-Approximately 0.15C.
+Approximately 0.15C (approximately 23 A at 155 Ah).
 
 Charging behavior:
 Charging commonly starts below 50% SOC and continues toward full
-charge, while partial charging segments are also present.
+charge; partial charging segments are also present.
 
 Temperature:
 Naturally varying ambient and battery temperature conditions
 across different operating periods, climates, and seasons.
 
 DoD:
-Variable and determined by real-world driving and charging behavior.
+Variable and determined by real-world driving and charging
+behavior.
+
 
 ============================================================
 5. AVAILABLE DATA
 =================
 
-Raw data:
+Column list (12 columns per CSV file):
 
-* Timestamp
-* Cumulative mileage
-* Pack SOC
-* Total current
-* Pack voltage
-* Highest cell voltage
-* Lowest cell voltage
-* Individual cell voltages
-* Battery temperature
+* terminaltime        - numeric seconds counter (not an epoch);
+                        sampling interval is ~10 s
+* soc                 - state of charge (%)
+* speed               - vehicle speed
+* totalodometer       - cumulative mileage (km)
+* chargestatus        - operating mode code (see Section 6)
+* totalvoltage        - pack terminal voltage (V)
+* totalcurrent        - pack terminal current (A)
+* minvoltagebattery   - minimum cell voltage (V)
+* maxvoltagebattery   - maximum cell voltage (V)
+* mintemperaturevalue - minimum cell temperature (deg C)
+* maxtemperaturevalue - maximum cell temperature (deg C)
+* batteryvoltage      - tilde-separated string of all 96 cell
+                        voltages (e.g. "3.643~3.644~3.642~...")
+* probetemperatures   - tilde-separated string of all probe
+                        temperatures
+
+Note on stringified columns:
+"batteryvoltage" and "probetemperatures" pack multiple per-cell
+or per-probe values into a single text field. They are not
+scalar measurements and are excluded from signal-level checks in
+the quality scorecard.
 
 Cell-level measurements:
 Voltage measurements are available for all 96 cells in each
-battery pack.
+battery pack, encoded in the "batteryvoltage" column.
 
 Processed data:
 
@@ -163,8 +192,76 @@ Processed data:
 SOH labels:
 SOH is obtained using Ah integration with OCV correction.
 
+
 ============================================================
-6. REAL-WORLD OPERATION
+6. OPERATING MODE CODES (chargestatus)
+======================================
+
+Codes observed in the raw data and their inferred meaning,
+derived from the joint distribution of current, speed, and SOC:
+
+* 0   - Rest / parked             (mean I = 0 A, SOC near 0)
+* 1   - Charging                  (mean I = -53 A, speed near 0)
+* 3   - Driving / discharge       (mean I = +8.5 A, speed ~19 km/h)
+* 4   - Charging complete / taper (mean I ~ -1.5 A, SOC ~93%)
+* 255 - Sensor error marker       (every such row has
+                                    totalcurrent = -1000.0 A exactly)
+
+The quality scorecard drops all chargestatus = 255 rows before
+running any signal-level check.
+
+Current sign convention:
+Negative = charging, positive = discharging.
+This is inferred from the raw data (the paper and README do not
+state a convention). The quality scorecard verifies it dynamically
+by comparing current sign to chargestatus. Driving includes regen
+braking, so ~15-20% of driving rows are legitimately negative.
+
+
+============================================================
+7. PHYSICAL ENVELOPE AND SENTINELS
+==================================
+
+The physical envelope used by the quality scorecard's
+plausibility check is derived as follows:
+
+Pack voltage: 240 - 408 V
+  Lower bound: 96 cells x 2.5 V/cell (standard NCM discharge
+               cutoff) = 240 V
+  Upper bound: 96 cells x 4.25 V/cell = 408 V
+               (the paper explicitly states a 4.25 V per-cell
+               upper cutoff for feature extraction)
+
+Pack current: -400 - +400 A
+  QC guard rail, not paper-derived. The paper does not state an
+  absolute current bound. Observed per-vehicle peaks in the
+  exploration were approximately +340 A during discharge and
+  approximately -200 A during charging (after removing the
+  -1000 A sentinel).
+
+Battery temperature: -20 - +60 C
+  Generic Li-ion operating envelope. The paper does not state a
+  thermal operating window. Observed range after sentinel removal
+  was approximately +3 to +44 C.
+
+SOC: 0 - 100 % (standard definition).
+
+Sentinel values (written by the BMS as placeholders, not
+measurements; the scorecard drops these rows before any
+plausibility check):
+
+* totalcurrent = -1000.0 A exactly
+      Appears on every row with chargestatus = 255.
+* totalvoltage = 0.0 V exactly
+      Appears when the vehicle is switched off and the BMS is
+      asleep. Present in the majority of vehicle files.
+* maxtemperaturevalue = -40.0 C exactly
+      Temperature-probe-not-connected marker. Present in many
+      vehicle files, always with the same exact value.
+
+
+============================================================
+8. REAL-WORLD OPERATION
 =======================
 
 Operation type:
@@ -189,8 +286,9 @@ Real-world coverage:
 The dataset directly represents production EV operation rather
 than laboratory-replayed driving profiles.
 
+
 ============================================================
-7. BATTERY STATE AND DEGRADATION
+9. BATTERY STATE AND DEGRADATION
 ================================
 
 SOH:
@@ -214,9 +312,10 @@ Mileage:
 Cumulative mileage is continuously recorded and can be used as a
 long-term usage indicator.
 
+
 ============================================================
-8. REPRESENTATIVENESS AND DIVERSITY
-===================================
+10. REPRESENTATIVENESS AND DIVERSITY
+====================================
 
 Chemistry diversity:
 One NCM chemistry is represented.
@@ -251,3 +350,42 @@ Real-world operation:
 Strong coverage through continuous field operation of production
 EVs.
 
+
+============================================================
+11. QUALITY-ASSESSMENT NOTES
+============================
+
+Design rule:
+Hardcode only facts that cannot be determined from the raw data
+files at all. Everything else is computed dynamically.
+
+Sampling strategy:
+The full dataset is ~180 GB across 94 files in the current
+snapshot. The quality scorecard samples the first 200,000 rows
+per file (approximately 23 days of continuous operation per
+vehicle) rather than reading all rows.
+
+Excluded columns:
+"batteryvoltage" and "probetemperatures" are tilde-separated
+strings of per-cell or per-probe values and are excluded from
+signal-level checks. The already-extracted min/max columns
+(minvoltagebattery, maxvoltagebattery, mintemperaturevalue,
+maxtemperaturevalue) provide the cell-level envelope used by
+the plausibility check.
+
+Time column handling:
+"terminaltime" is a numeric seconds counter (not an epoch
+timestamp). Sampling interval is ~10 s. Time-based checks treat
+the column as seconds.
+
+Sign-convention check:
+The scorecard verifies the current sign convention dynamically
+against chargestatus and applies a regen tolerance on the
+driving side (>= 75% positive-dominant is accepted, since
+regenerative braking legitimately produces negative current
+during deceleration).
+
+METADATA_ONLY:
+Calendar aging is the only metadata-only aspect for this dataset.
+Dynamic load profiles and real-world operation are present by
+construction and are scored dynamically, not as metadata facts.
