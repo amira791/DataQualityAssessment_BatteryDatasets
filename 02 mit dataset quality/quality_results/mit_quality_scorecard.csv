@@ -1,0 +1,23 @@
+criterion,aspect,score,finding
+Correctness,Physical plausibility,o,"5,847,546/297,398,721 voltage/current/temperature readings (1.966%) outside the general Li-ion envelope (voltage 2.0-3.65V; current -10.0-10.0A; temperature 0.0-45.0C during charge, -20.0-60.0C during discharge)."
+Correctness,Current sign convention,++,"117,729/117,729 cycles (100.00%) show both a positive charge phase and a negative discharge phase, as expected (positive = charge, negative = discharge convention confirmed directly from the recorded Current field)."
+Completeness,Missing values,++,"0.0000% missing across essential columns ['t', 'v', 'i', 'T'] (0 of 435,956,972 expected measurements)."
+Completeness,Temporal continuity,+,Average within-cycle sampling continuity (no gaps >5x the median interval): 99.18%.
+Completeness,Test protocol documentation,++,7/7 essential protocol elements documented (100%); 48 unique fast-charging policies documented via the policy_readable field.
+Anomaly and noise control,Statistical outliers,+,0.794% of per-cycle discharge capacity values fall outside the 3xIQR range.
+Anomaly and noise control,Unexpected signal changes,-,8.631% of cycle-to-cycle capacity transitions fall outside the 3xIQR range of transition sizes (first transition per cell excluded).
+Anomaly and noise control,Measurement noise,++,Median sample-to-sample voltage fluctuation during the CV-phase tail of charge (near-resting current) is 0.0015% of a 3.3V reference.
+Representativeness and diversity,Temperature conditions,++,"Measured temperature range [-270.0, 400.0]C (chamber setpoint 25-30C per metadata) -> 68 effective condition(s)."
+Representativeness and diversity,C-rate / policy diversity,++,48 unique fast-charging policies documented across 141 cells (ratio 2.9 cells/policy).
+Representativeness and diversity,Replicate cells,o,2.9 replicate cells per unique fast-charging policy on average (141 cells across 48 policies).
+Representativeness and diversity,Chemistry diversity,o,"1 chemistry/cell model (A124 LFP, 2.54 Ah) across the whole dataset -- no per-cell chemistry field exists in the .mat to count from."
+Representativeness and diversity,DoD diversity,o,1 DoD condition per metadata (all cells cycled over the same full charge/discharge window) -- no per-cycle DoD field to count independently.
+Representativeness and diversity,Calendar aging,-,Metadata reports calendar aging is absent as a dedicated experimental condition; the dataset is cyclic-ageing only.
+Representativeness and diversity,Dynamic load profiles,o,Metadata: the ageing protocol is CCCV charging + CC discharging; no drive-cycle or variable-current ageing profile is applied (only the fast-charging policies vary the current during charge).
+Representativeness and diversity,Real-world operation,-,Metadata: real-world operation is absent; all cycling is laboratory CCCV/CC with no measurements from vehicles in operation.
+Distribution balance,SOH range coverage,++,27.7% of cells reach SOH < 80% (end of life).
+Distribution balance,SOH distribution balance,o,Largest SOH bin holds 77.6% of all cycle records.
+Distribution balance,Cycle contribution per cell,o,Coefficient of variation of cycle count across cells: 43.5%.
+Temporal coherence,Monotonic temporal progression,++,100.00% of consecutive characterisation-cycle indices are non-decreasing.
+Temporal coherence,Consistent degradation trend,++,"99.99% of cycle-to-cycle SOH transitions are non-increasing beyond a 3% noise tolerance (per-transition, not an all-or-nothing per-cell gate)."
+Temporal coherence,Cycle index consistency,++,100.00% of characterisation-cycle indices are non-duplicated within their cell.
