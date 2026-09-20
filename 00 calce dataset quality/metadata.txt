@@ -35,11 +35,6 @@ LiCoO2 (LCO)
 Nominal capacity:
 1350 mAh
 
-Number of cells assessed:
-1
-
-Cell:
-CX2-16
 
 Dataset type:
 Laboratory battery cycling data
@@ -87,7 +82,6 @@ Absent
 Calendar aging:
 No dedicated calendar-aging experiment documented for CX2-16
 
-
 ============================================================
 3. MEASURED DATA
 ============================================================
@@ -111,100 +105,11 @@ Test procedure information:
 Available through CALCE documentation and file metadata.
 
 
-============================================================
-4. REPRESENTATIVENESS AND DIVERSITY
-============================================================
 
-Chemistry diversity:
-1 chemistry (LCO)
-
-Temperature diversity:
-1 nominal temperature condition
-
-DoD diversity:
-Limited; no systematic multi-level DoD protocol documented
-for CX2-16
-
-C-rate diversity:
-1 principal rate (0.5C)
-
-Replicate cells/vehicles:
-1 independent cell
-
-Calendar aging:
-Absent
-
-Dynamic load profiles:
-Absent
-
-Real-world operation:
-Absent
 
 
 ============================================================
-5. METADATA-BASED QUALITY EVIDENCE
-============================================================
-
-Correctness:
-Physical plausibility and current sign convention require
-signal-level verification from the recorded measurements.
-
-Completeness:
-Missing values and temporal continuity require direct
-analysis of the CX2-16 files.
-
-Test protocol documentation:
-Available.
-
-Anomaly and noise control:
-Requires signal-level analysis.
-
-Distribution balance:
-SOH range and SOH distribution require calculation from
-cycle-level capacity data.
-
-Cycle contribution per cell:
-One cell; cycle contribution is determined from the
-available valid cycles.
-
-Temporal coherence:
-Requires direct analysis of timestamps, cycle indices,
-and degradation trajectories.
-
-
-============================================================
-6. QUALITY-ASSESSMENT DATA SOURCES
-============================================================
-
-Metadata-derived criteria:
-- Chemistry diversity
-- Temperature conditions
-- DoD diversity
-- C-rate diversity
-- Replicate cells/vehicles
-- Calendar aging
-- Dynamic load profiles
-- Real-world operation
-- Test protocol documentation
-
-Code-derived criteria:
-- Physical plausibility
-- Current sign convention
-- Missing values
-- Temporal continuity
-- Statistical outliers
-- Unexpected signal changes
-- Measurement noise
-- SOH range coverage
-- SOH distribution balance
-- Cycle contribution per cell
-- Monotonic temporal progression
-- Consistent degradation trend
-- Cycle index consistency
-
-
-============================================================
-7. OFFICIAL CALCE INFORMATION
+4. OFFICIAL CALCE INFORMATION
 ============================================================
 
 The CALCE documentation describes the CX2 family as prismatic

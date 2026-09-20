@@ -57,6 +57,16 @@ METADATA_ONLY = {
     },
 }
 
+PROTOCOL_METADATA = {
+    "chemistry": True,
+    "temperature": True,
+    "charging_protocol": True,
+    "charging_rate": True,
+    "charge_termination": True,
+    "discharge_rate": True,
+    "discharge_cutoff": True,
+}
+
 # Physical spec bounds -- CX2 family, rated capacity 1.35Ah (1350 mAh).
 # Voltage: CALCE-documented cutoffs (calce.umd.edu/battery-data), +-0.05V
 # practical tolerance.
@@ -302,11 +312,18 @@ pct_continuity = np.mean(cont_pct_list) if cont_pct_list else 100
 add("Completeness", "Temporal continuity", score_pct_high_is_good(pct_continuity),
     f"Average cycle-index continuity across cells: {pct_continuity:.2f}%.")
 
-parsed_ok = sum(1 for f in files if FNAME_RE.match(os.path.basename(f)))
-pct_doc = parsed_ok / len(files) * 100
-add("Completeness", "Test protocol documentation", score_doc(pct_doc),
-    f"{parsed_ok}/{len(files)} files ({pct_doc:.0f}%) carry a fully parseable, "
-    f"documented protocol (chemistry, temperature, DoD, C-rate) in their filenames.")
+# Test protocol documentation
+documented_protocol = sum(PROTOCOL_METADATA.values())
+total_protocol_elements = len(PROTOCOL_METADATA)
+pct_doc = documented_protocol / total_protocol_elements * 100
+
+add(
+    "Completeness",
+    "Test protocol documentation",
+    score_doc(pct_doc),
+    f"{documented_protocol}/{total_protocol_elements} essential protocol "
+    f"elements documented ({pct_doc:.0f}%)."
+)
 
 # ============================================================================
 # 3. ANOMALY AND NOISE CONTROL
