@@ -1,7 +1,7 @@
 ============================================================
 GUANGZHOU 10-EV FLEET DATASET
 QUALITY ASSESSMENT METADATA
-===========================
+============================================================
 
 Dataset:
 Guangzhou 10-EV Fleet Dataset
@@ -10,9 +10,17 @@ Dataset type:
 Real-world electric vehicle operational dataset
 
 Source:
-Guangzhou electric vehicle fleet data
+Guangzhou electric vehicle fleet data, South China University of
+Technology (Translab-SCUT)
+
+Repository:
 https://github.com/Translab-SCUT/Electric-vehicle-operation-data
 
+Primary reference paper:
+Xu, Y., et al. "Scalable and generalizable deep learning for
+battery state of health estimation in on-road electric vehicles."
+Journal of Energy Chemistry, 2025.
+DOI: 10.1016/j.jechem.2025.07.020
 
 Observation period:
 Approximately one month per vehicle
@@ -20,10 +28,10 @@ Approximately one month per vehicle
 Number of vehicles:
 10
 
-============================================================
 
+============================================================
 1. DATASET IDENTITY
-   ============================================================
+============================================================
 
 Number of vehicles:
 10
@@ -35,24 +43,25 @@ Chemistries:
 NCM and LFP
 
 NCM vehicles:
-6
+6 (Vehicle#1 -- Vehicle#6, all passenger)
 
 LFP vehicles:
-4
+4 (Vehicle#7 passenger; Vehicle#8, #9, #10 buses)
 
 Initial battery capacity:
-120--645 Ah
+120 -- 645 Ah
 
 Dataset type:
-Real-world battery operational dataset
+Real-world battery operational dataset (on-road fleet telematics)
 
 Application:
-Battery state analysis, SOH estimation, and real-world
-battery degradation modeling
+Battery state analysis, SOH estimation, and real-world battery
+degradation modelling
+
 
 ============================================================
 2. VEHICLE AND BATTERY CHARACTERISTICS
-======================================
+============================================================
 
 Vehicle types:
 Passenger cars and buses
@@ -64,33 +73,33 @@ Chemistry diversity:
 2 chemistries
 
 Battery capacity:
-120--645 Ah
+120 -- 645 Ah
 
 NCM configuration:
-V1--V6 use 91-series-cell battery packs.
+Vehicle#1 -- #6 use 91-series-cell battery packs.
 
 LFP configuration:
-V7 and V8 have confidential pack configurations.
+Vehicle#7 and #8 have confidential pack configurations.
 
-V9:
+Vehicle#9:
 360 cells; exact series/parallel configuration unknown.
 
-V10:
+Vehicle#10:
 324 cells; exact series/parallel configuration unknown.
 
 Replicate vehicles:
 10 independent vehicles
 
+
 ============================================================
 3. DATA ACQUISITION
-===================
+============================================================
 
 Acquisition environment:
 Real-world on-road operation
 
 Acquisition chain:
-CAN bus -> BMS -> T-BOX -> base station ->
-OEM cloud platform
+CAN bus -> BMS -> T-BOX -> base station -> OEM cloud platform
 
 Transmission:
 Real-time telematics through the onboard T-BOX
@@ -102,11 +111,12 @@ Sampling frequency:
 0.1 Hz or 0.5 Hz depending on the vehicle
 
 Total data points:
-11,837,307
+Approximately 11.8 million observations across the 10 vehicles
+
 
 ============================================================
 4. OPERATING CONDITIONS
-=======================
+============================================================
 
 Operation:
 Real-world driving and charging
@@ -121,7 +131,7 @@ Vehicle speed:
 Available
 
 SOC:
-Available
+Available (BMS-reported)
 
 Pack voltage:
 Available
@@ -136,40 +146,47 @@ Cell temperature:
 Maximum and minimum cell temperature available
 
 Dynamic operation:
-Naturally occurring through real-world driving and
-charging conditions.
+Naturally occurring through real-world driving and charging
+conditions.
+
+Ambient temperature:
+Available indirectly through pack / cell thermal response.
+
 
 ============================================================
 5. AVAILABLE DATA
-=================
+============================================================
 
-Recorded variables include:
+Recorded variables (columns in each vehicle#N.xlsx):
 
-* Timestamp
-* Vehicle speed
-* Charging/driving status
-* Cumulative mileage
-* Pack voltage
-* Pack current
-* SOC
-* Maximum cell voltage
-* Minimum cell voltage
-* Maximum cell temperature
-* Minimum cell temperature
+* time                -- timestamp of each sample
+* vhc_speed           -- vehicle speed
+* charging_signal     -- mode indicator (1 = charging, 3 = driving)
+* vhc_totalMile       -- cumulative mileage
+* hv_voltage          -- pack voltage
+* hv_current          -- pack current
+* bcell_soc           -- state of charge
+* bcell_maxVoltage    -- maximum cell voltage
+* bcell_minVoltage    -- minimum cell voltage
+* bcell_maxTemp       -- maximum cell temperature
+* bcell_minTemp       -- minimum cell temperature
 
 Current convention:
-Positive during discharge and negative during charging.
+Positive during CHARGING, negative during DISCHARGING.
+(The accompanying text notes in some secondary sources state the
+opposite; the GitHub README and the reference paper are treated as
+authoritative.)
 
 Sampling:
-0.1 Hz or 0.5 Hz.
+0.1 Hz or 0.5 Hz depending on the vehicle.
 
 Data volume:
-More than 11.8 million observations across the
-10 vehicles.
+Approximately 11.8 million observations across 10 vehicles.
+
 
 ============================================================
 6. REAL-WORLD OPERATION
-=======================
+============================================================
 
 Operation environment:
 On-road fleet operation
@@ -184,18 +201,60 @@ Vehicle diversity:
 Passenger vehicles and buses
 
 Dynamic load profiles:
-Present through naturally varying driving and
-charging conditions
+Present through naturally varying driving and charging conditions
 
 Real-world operation:
 Present
 
 Mileage:
-Approximately 27,318--114,413 km per vehicle
+Approximately 27,318 -- 114,413 km per vehicle
+
 
 ============================================================
-7. BATTERY STATE AND DEGRADATION
-================================
+7. PHYSICAL BOUNDS (paper-derived)
+============================================================
+
+The following bounds are derived from the reference paper and the
+vehicle pack structure documented in the GitHub repository. They are
+used by the physical-plausibility check in the quality-assessment
+code.
+
+Pack-level:
+
+* Pack voltage:     250 -- 450 V
+    Implied from 91 NCM cells in series; typical NCM cell voltage
+    3.0 -- 4.2 V gives ~273 -- 382 V, with tolerance for
+    transient swings and pack ageing. Paper Fig. 2(d) shows the
+    observed pack-voltage range.
+
+* Pack current:     -200 -- +200 A
+    Driving / charging operational range. Paper Fig. 2(e) shows
+    the dynamic current profile. Positive = charging,
+    negative = discharging.
+
+* Battery temperature (max cell temperature):
+                    10 -- 40 C
+    Paper Fig. 2(h,i): "cell temperatures fluctuate between 10
+    and 40 C".
+
+* Ambient temperature:
+                    0 -- 30 C
+    Paper Fig. 2(c): "ambient operating temperatures range from
+    approximately 0 to 30 C".
+
+Cell-level:
+
+* Cell voltage:     2.5 -- 4.2 V (NCM) / 2.0 -- 3.65 V (LFP)
+    Paper Fig. 2(f,g) shows cell voltages. Some readings >6 V
+    were flagged as errors in the paper.
+
+* Cell temperature: 10 -- 40 C
+    Paper Fig. 2(h,i).
+
+
+============================================================
+8. BATTERY STATE AND DEGRADATION
+============================================================
 
 SOC:
 Directly available from the BMS.
@@ -207,200 +266,16 @@ Direct SOH:
 Not directly provided.
 
 Discharge capacity:
-Not directly provided as a dedicated cycle-level
-measurement.
+Not directly provided as a dedicated cycle-level measurement.
 
 SOH derivation:
-Requires estimation from the available operational
-signals or another capacity-based procedure.
+Requires estimation from the available operational signals or
+another capacity-based procedure.
 
 Long-term degradation:
-Limited by the approximately one-month observation
-period.
+Limited by the approximately one-month observation period.
 
 End-of-life:
 Not specified.
 
-============================================================
-8. REPRESENTATIVENESS AND DIVERSITY
-===================================
-
-Chemistry diversity:
-2 chemistries (NCM and LFP)
-
-Temperature diversity:
-Natural temperature variation is captured through
-cell temperature measurements.
-
-DoD diversity:
-Not explicitly specified; requires derivation from
-SOC trajectories.
-
-C-rate diversity:
-Not explicitly specified; requires derivation from
-current and battery capacity.
-
-Replicate cells/vehicles:
-10 independent vehicles
-
-Calendar aging:
-Absent as a dedicated experimental condition
-
-Dynamic load profiles:
-Present through real-world driving and charging
-
-Real-world operation:
-Present through on-road fleet operation
-
-Vehicle-type diversity:
-Passenger cars and buses
-
-============================================================
-9. DISTRIBUTION-RELATED METADATA
-================================
-
-Number of vehicles:
-10
-
-Data contribution:
-Varies substantially between vehicles.
-
-Data volume:
-443,806--5,304,111 observations per vehicle.
-
-Mileage:
-27,318--114,413 km per vehicle.
-
-SOH range:
-Requires calculation from derived SOH values.
-
-SOH distribution:
-Requires calculation from derived SOH values.
-
-Cycle contribution:
-Requires identification of charging/discharging
-events from the operational data.
-
-Cycle contribution balance:
-Requires direct calculation for each vehicle.
-
-============================================================
-10. TEMPORAL INFORMATION
-========================
-
-Timestamp:
-Available.
-
-Timestamp format:
-YYYY-MM-DD HH:MM:SS
-
-Observation period:
-Approximately one month per vehicle.
-
-Sampling frequency:
-0.1 Hz or 0.5 Hz.
-
-Temporal sequence:
-Available through timestamp information.
-
-Temporal continuity:
-Requires direct analysis of timestamp differences.
-
-Cycle/event sequence:
-Requires identification from charging and driving
-events.
-
-Long-term temporal coverage:
-Limited because only one month of data is available
-per vehicle.
-
-============================================================
-11. KNOWN DATA QUALITY CONSIDERATIONS
-=====================================
-
-Observation duration:
-The available data cover only approximately one month
-per vehicle.
-
-Sampling heterogeneity:
-Vehicles use different sampling frequencies
-(0.1 Hz or 0.5 Hz).
-
-Data-volume heterogeneity:
-The number of observations varies substantially
-between vehicles.
-
-Battery configuration:
-Pack configuration is incomplete for several vehicles.
-
-Operating-condition documentation:
-Real-world conditions are observed rather than
-experimentally controlled.
-
-DoD and C-rate:
-Not directly documented and require derivation from
-operational measurements.
-
-SOH information:
-A complete long-term SOH trajectory is not directly
-provided.
-
-============================================================
-12. METADATA-BASED QUALITY EVIDENCE
-===================================
-
-Correctness:
-Physical plausibility and current sign convention
-require direct signal-level verification.
-
-Completeness:
-Missing values and temporal continuity require direct
-analysis of the recorded time-series data.
-
-Test protocol documentation:
-Data acquisition chain, variables, and sampling
-frequencies are documented.
-
-Anomaly and noise control:
-Requires direct statistical and signal-level analysis.
-
-Distribution balance:
-Requires calculation from derived SOH and
-vehicle-level data distributions.
-
-Temporal coherence:
-Requires direct analysis of timestamps and operational
-sequences.
-
-============================================================
-13. DATA SOURCES FOR QUALITY ASSESSMENT
-=======================================
-
-Metadata-derived criteria:
-
-* Chemistry diversity
-* Temperature conditions
-* DoD diversity
-* C-rate diversity
-* Replicate cells/vehicles
-* Calendar aging
-* Dynamic load profiles
-* Real-world operation
-* Test protocol documentation
-
-Code-derived criteria:
-
-* Physical plausibility
-* Current sign convention
-* Missing values
-* Temporal continuity
-* Statistical outliers
-* Unexpected signal changes
-* Measurement noise
-* SOH range coverage
-* SOH distribution balance
-* Cycle contribution per vehicle
-* Monotonic temporal progression
-* Consistent degradation trend
-* Cycle index consistency
 
