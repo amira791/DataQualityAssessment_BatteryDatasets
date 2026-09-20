@@ -1,0 +1,24 @@
+criterion,aspect,score,finding
+Correctness,Physical plausibility,-,"110,539/1,105,303 voltage/current readings (10.001%) outside the general Li-ion envelope. Voltage checked against the fixed 2.5-4.2 V window. Current checked against a per-cell C-rate envelope (charge ≤ 1.0C, discharge ≤ 5.0C), with 1C taken as each cell's rated capacity in Ah derived from the median of its first three discharge-capacity readings. Temperature deliberately excluded from this check."
+Correctness,Current sign convention,+,"275,901/276,721 cycles (99.70%) show positive charge current and negative discharge current, as documented."
+Correctness,Documented vs. observed current rate,++,"Per-cell C-rate is taken from the SNL filename and combined with the derived rated capacity to give the expected ampere magnitude. Share of cycles whose observed current exceeds twice the documented expectation: charge 0.0%, discharge 0.0%. Reported as a protocol finding, not folded into physical plausibility."
+Completeness,Missing values,++,"0.0000% missing across essential columns ['Cycle_Index', 'Discharge_Capacity (Ah)', 'Min_Voltage (V)', 'Max_Voltage (V)']."
+Completeness,Temporal continuity,+,Average cycle-index continuity across cells: 99.75%.
+Completeness,Test protocol documentation,++,8/8 essential protocol elements documented (100%).
+Anomaly and noise control,Statistical outliers,-,5.839% of discharge-capacity readings fall outside the 3xIQR range.
+Anomaly and noise control,Unexpected signal changes,-,"23.233% of cycle-to-cycle capacity transitions fall outside the 3xIQR range of transition sizes (first, formation-related transition excluded per cell)."
+Anomaly and noise control,Measurement noise,+,"Median sample-to-sample voltage fluctuation during low-current (rest/CV-tail) periods is 0.9517% of a 3.6V reference, computed from the raw timeseries files (86 files contributed)."
+Representativeness and diversity,Chemistry diversity,++,"3 chemistries across the dataset (['LFP', 'NCA', 'NMC'])."
+Representativeness and diversity,Temperature conditions,++,"3 temperature setpoint(s) ([np.int64(15), np.int64(25), np.int64(35)] °C)."
+Representativeness and diversity,DoD diversity,++,"3 DoD range(s) (['0-100', '20-80', '40-60'])."
+Representativeness and diversity,C-rate diversity,++,"4 discharge C-rate(s) ([np.float64(0.5), np.float64(1.0), np.float64(2.0), np.float64(3.0)])."
+Representativeness and diversity,Replicate cells,o,2.6 replicate cells per experimental condition on average (across 33 conditions).
+Representativeness and diversity,Calendar aging,-,SNL documentation reports no dedicated calendar-aging experiment; the study is cyclic-ageing only.
+Representativeness and diversity,Dynamic load profiles,-,SNL documentation states cycling follows controlled laboratory CC / CCCV protocols; no dynamic or drive-cycle load profile is applied.
+Representativeness and diversity,Real-world operation,-,Dataset is laboratory-only per official documentation; no field / real-world operation data was collected.
+Distribution balance,SOH range coverage,++,100.0% of cells reach SOH < 80% (end of life).
+Distribution balance,SOH distribution balance,+,Largest SOH bin holds 62.1% of all cycle records.
+Distribution balance,Cycle contribution per cell,-,Coefficient of variation of cycle-life across cells: 119.8%.
+Temporal coherence,Monotonic temporal progression,++,100.00% of consecutive cycle-index steps are non-decreasing.
+Temporal coherence,Consistent degradation trend,++,"99.37% of cycle-to-cycle SOH transitions are non-increasing beyond a 3% noise tolerance (measured across all cells, not an all-or-nothing per-cell gate)."
+Temporal coherence,Cycle index consistency,++,99.96% of cycle-index values are non-duplicated within their cell.

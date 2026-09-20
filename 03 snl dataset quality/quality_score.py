@@ -15,12 +15,12 @@ values, noise, distribution balance, temporal coherence — is computed
 dynamically from the CSV files and their filenames.
 
 Physical plausibility for SNL is checked against the general Li-ion
-envelope (voltage + current only), not chemistry-specific cutoffs, so the
-same bounds apply uniformly across the three chemistries:
-    voltage  2.5 - 4.2 V
-    current  -10 to +10 A
+envelope, applied uniformly across the three chemistries:
+    voltage  fixed 2.5 - 4.2 V window
+    current  per-cell C-rate envelope (charge <= 1.0C, discharge <= 5.0C),
+             with 1C taken as each cell's rated capacity in Ah
 Temperature is deliberately excluded from the plausibility check and is
-used only in the anomaly/noise section, matching the scope you specified.
+used only in the anomaly/noise section, matching the stated scope.
 
 Output: a scorecard CSV and a scorecard figure, both saved to
 ./quality_results/
@@ -88,7 +88,8 @@ PROTOCOL_METADATA = {
 #   2.5 - 4.2 V -- common datasheet discharge / charge cutoffs for the
 #   conventional 4.2 V Li-ion cell family (LCO / NMC / NCA graphite-anode
 #   cells). This is a QC guard rail, not a claim about any specific cell's
-#   datasheet limits. Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
+#   datasheet limits.
+#   Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
 #
 # Current:
 #   Expressed as C-rate, not amperes. There is no scientifically valid
@@ -100,23 +101,21 @@ PROTOCOL_METADATA = {
 #   the 4.2 V family is false-flagged:
 #       charge    |I| <= 1.0C
 #       discharge |I| <= 5.0C
-#   (See C_RATE_CHARGE_MAX / C_RATE_DISCHARGE_MAX below; the actual ampere
-#   limit for a given cell is computed at runtime as C_rate x that cell's
-#   own rated capacity in Ah.)
+#   The actual ampere limit for a given cell is computed at runtime as
+#   C_rate x that cell's own rated capacity in Ah.
 #
 # Temperature:
 #   Deliberately excluded from the physical-plausibility check per the
 #   stated scope. Temperature is still measured (in the Anomaly and noise
 #   control section) as a noise / sensor-health indicator, but it is not
-#   part of this envelope. Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
+#   part of this envelope.
+#   Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
 # ============================================================================
 VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.5, 4.2
 C_RATE_CHARGE_MAX    = 1.0   # upper bound of "maximum charge" C-rate rule
 C_RATE_DISCHARGE_MAX = 5.0   # upper bound of "maximum continuous discharge" C-rate rule
 NOMINAL_VOLTAGE_V = 3.6      # typical 18650 Li-ion operating voltage, used only to express noise as %
-
-
-# Examples of sources: https://www.nature.com/articles/s41598-025-25924-2/tables/1 
+# Examples of sources: https://www.nature.com/articles/s41598-025-25924-2/tables/1
 # https://www.nature.com/articles/s41597-025-06229-5/tables/1
 
 # ============================================================================
@@ -249,38 +248,92 @@ print(f"Detected columns -> cycle:{col_cycle} dchg_cap:{col_dchg_cap} chg_cap:{c
       f"min_v:{col_min_v} max_v:{col_max_v} min_i:{col_min_i} max_i:{col_max_i}\n")
 
 # ============================================================================
+# PER-CELL RATED CAPACITY (used by the C-rate plausibility envelope)
+#   SNL metadata does not state rated capacity, so it is derived per cell
+#   from the median of the first three discharge-capacity readings. The
+#   resulting value in Ah is what "1C" refers to for that cell.
+# ============================================================================
+cell_nominal_Ah = {}
+if col_dchg_cap:
+    cell_nominal_Ah = (
+        data.groupby("cell_id")[col_dchg_cap]
+            .apply(lambda s: s.dropna().head(3).median())
+            .to_dict()
+    )
+print(f"Derived per-cell rated capacities (first 3 discharge readings, Ah):")
+for cid in sorted(cell_nominal_Ah.keys())[:6]:
+    print(f"    {cid}: {cell_nominal_Ah[cid]:.3f} Ah")
+if len(cell_nominal_Ah) > 6:
+    print(f"    ... and {len(cell_nominal_Ah) - 6} more cells")
+print()
+
+# ============================================================================
 # 1. CORRECTNESS
 # ============================================================================
 print("== 1. Correctness ==")
 
+# ---------------------------------------------------------------------------
+# Physical plausibility -- voltage (fixed bounds, same for all cells)
+# ---------------------------------------------------------------------------
 viol, total = 0, 0
-per_signal = []
-for label, col, lo, hi in [
-    ("Min_Voltage", col_min_v, VOLTAGE_MIN_V, VOLTAGE_MAX_V),
-    ("Max_Voltage", col_max_v, VOLTAGE_MIN_V, VOLTAGE_MAX_V),
-    ("Min_Current", col_min_i, CURRENT_MIN_A, CURRENT_MAX_A),
-    ("Max_Current", col_max_i, CURRENT_MIN_A, CURRENT_MAX_A),
-]:
+for label, col in [("Min_Voltage", col_min_v), ("Max_Voltage", col_max_v)]:
     if col:
         s = data[col].dropna()
         if len(s) == 0:
             continue
-        v = ((s < lo) | (s > hi)).sum()
+        v = ((s < VOLTAGE_MIN_V) | (s > VOLTAGE_MAX_V)).sum()
         viol += v
         total += len(s)
         pct = v / len(s) * 100
-        per_signal.append((label, col, lo, hi, v, len(s), pct))
         print(f"    Physical plausibility breakdown -- {label} ({col}): "
-              f"{v:,}/{len(s):,} ({pct:.2f}%) outside [{lo}, {hi}], "
+              f"{v:,}/{len(s):,} ({pct:.2f}%) outside [{VOLTAGE_MIN_V}, {VOLTAGE_MAX_V}], "
               f"observed range [{s.min():.4f}, {s.max():.4f}], "
               f"5th/95th pct [{s.quantile(0.05):.4f}, {s.quantile(0.95):.4f}]")
+
+# ---------------------------------------------------------------------------
+# Physical plausibility -- current (per-cell C-rate envelope)
+# ---------------------------------------------------------------------------
+n_charge = n_discharge = 0
+viol_charge = viol_discharge = 0
+pct_charge = pct_discharge = 0.0
+if col_max_i and col_min_i and cell_nominal_Ah:
+    charge_limit_A    = data["cell_id"].map(cell_nominal_Ah) * C_RATE_CHARGE_MAX
+    discharge_limit_A = data["cell_id"].map(cell_nominal_Ah) * C_RATE_DISCHARGE_MAX
+
+    # Charge phase: Max_Current > 0. Flag anything above 1C.
+    charge_mask = data[col_max_i] > 0
+    viol_charge = (data.loc[charge_mask, col_max_i] > charge_limit_A[charge_mask]).sum()
+    n_charge = int(charge_mask.sum())
+
+    # Discharge phase: Min_Current < 0. Flag anything below -5C.
+    discharge_mask = data[col_min_i] < 0
+    viol_discharge = (data.loc[discharge_mask, col_min_i] < -discharge_limit_A[discharge_mask]).sum()
+    n_discharge = int(discharge_mask.sum())
+
+    viol += int(viol_charge) + int(viol_discharge)
+    total += n_charge + n_discharge
+
+    pct_charge = viol_charge / n_charge * 100 if n_charge else 0
+    pct_discharge = viol_discharge / n_discharge * 100 if n_discharge else 0
+    print(f"    Physical plausibility breakdown -- Max_Current (charge, "
+          f"per-cell envelope {C_RATE_CHARGE_MAX}C): {viol_charge:,}/{n_charge:,} "
+          f"({pct_charge:.2f}%) exceed the envelope")
+    print(f"    Physical plausibility breakdown -- Min_Current (discharge, "
+          f"per-cell envelope -{C_RATE_DISCHARGE_MAX}C): {viol_discharge:,}/{n_discharge:,} "
+          f"({pct_discharge:.2f}%) exceed the envelope")
+
 pct_implausible = (viol / total * 100) if total else 0
 add("Correctness", "Physical plausibility", score_pct_low_is_good(pct_implausible),
     f"{viol:,}/{total:,} voltage/current readings ({pct_implausible:.3f}%) outside the general "
-    f"Li-ion envelope (voltage {VOLTAGE_MIN_V}-{VOLTAGE_MAX_V}V, current {CURRENT_MIN_A}-"
-    f"{CURRENT_MAX_A}A). Temperature deliberately excluded from this check. See console for the "
-    f"per-signal breakdown.")
+    f"Li-ion envelope. Voltage checked against the fixed {VOLTAGE_MIN_V}-{VOLTAGE_MAX_V} V window. "
+    f"Current checked against a per-cell C-rate envelope (charge ≤ {C_RATE_CHARGE_MAX}C, "
+    f"discharge ≤ {C_RATE_DISCHARGE_MAX}C), with 1C taken as each cell's rated capacity in Ah "
+    f"derived from the median of its first three discharge-capacity readings. "
+    f"Temperature deliberately excluded from this check.")
 
+# ---------------------------------------------------------------------------
+# Current sign convention
+# ---------------------------------------------------------------------------
 if col_min_i and col_max_i:
     valid_cycles = data.dropna(subset=[col_min_i, col_max_i])
     consistent = ((valid_cycles[col_max_i] > 0) & (valid_cycles[col_min_i] < 0)).sum()
@@ -292,6 +345,39 @@ else:
     add("Correctness", "Current sign convention", "o",
         "Min/Max current columns not present in the cycle-data files; convention could not be "
         "verified per-record.")
+
+# ---------------------------------------------------------------------------
+# Documented vs. observed current rate
+#   The SNL filename encodes the documented charge/discharge C-rate for each
+#   cell. This aspect checks whether the observed per-cycle current magnitude
+#   is consistent with what that documented C-rate implies, given the same
+#   per-cell rated capacity used above. A mismatch is a protocol finding,
+#   not a physical-plausibility violation, and is scored separately.
+# ---------------------------------------------------------------------------
+if col_max_i and col_min_i and cell_nominal_Ah:
+    expected_charge_A    = data["charge_c_rate"]    * data["cell_id"].map(cell_nominal_Ah)
+    expected_discharge_A = data["discharge_c_rate"] * data["cell_id"].map(cell_nominal_Ah)
+
+    observed_charge_A    = data[col_max_i]
+    observed_discharge_A = data[col_min_i].abs()
+
+    ch_mask = observed_charge_A > 0
+    dis_mask = observed_discharge_A > 0
+
+    ch_far = (observed_charge_A[ch_mask] > 2.0 * expected_charge_A[ch_mask]).mean() * 100 if ch_mask.any() else 0
+    dis_far = (observed_discharge_A[dis_mask] > 2.0 * expected_discharge_A[dis_mask]).mean() * 100 if dis_mask.any() else 0
+
+    worst_far = max(ch_far, dis_far)
+    add("Correctness", "Documented vs. observed current rate",
+        "o" if worst_far > 50 else ("+" if worst_far > 5 else "++"),
+        f"Per-cell C-rate is taken from the SNL filename and combined with the derived rated "
+        f"capacity to give the expected ampere magnitude. Share of cycles whose observed current "
+        f"exceeds twice the documented expectation: charge {ch_far:.1f}%, discharge {dis_far:.1f}%. "
+        f"Reported as a protocol finding, not folded into physical plausibility.")
+else:
+    add("Correctness", "Documented vs. observed current rate", "o",
+        "Insufficient data (current columns or per-cell capacities unavailable) to compare "
+        "observed currents against the documented C-rate.")
 
 # ============================================================================
 # 2. COMPLETENESS
