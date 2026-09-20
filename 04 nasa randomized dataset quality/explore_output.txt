@@ -1,0 +1,270 @@
+
+==============================================================================
+  0. LOAD OVERVIEW
+==============================================================================
+Folder: C:\Users\admin\Desktop\DR2\11 All Datasets\02 NASA Randomized Battery Dataset\battery_alt_dataset\regular_alt_batteries
+Found 15 battery CSV files:
+    battery00.csv                                               67.6 MB
+    battery01.csv                                              322.6 MB
+    battery10.csv                                               55.5 MB
+    battery11.csv                                              317.7 MB
+    battery20.csv                                               12.4 MB
+    battery21.csv                                               26.1 MB
+    battery22.csv                                              172.9 MB
+    battery23.csv                                               83.6 MB
+    battery30.csv                                               35.8 MB
+    battery31.csv                                              209.6 MB
+    battery40.csv                                               45.3 MB
+    battery41.csv                                              180.9 MB
+    battery50.csv                                               48.8 MB
+    battery51.csv                                              116.6 MB
+    battery52.csv                                               94.3 MB
+
+Total rows: 28,358,264
+Total columns: 11
+Batteries: 15
+
+==============================================================================
+  1. SCHEMA DUMP
+==============================================================================
+column                              dtype          NaN%  first 3 non-null values
+----------------------------------------------------------------------------------------------------
+start_time                          object        0.00%  ['2022-07-19 11:10:00', '2022-07-19 11:10:00', '20
+time                                float64       0.00%  [0.0, 1.8939999999999984, 2.814]
+mode                                float64       0.00%  [0.0, 0.0, 0.0]
+voltage_charger                     float64       0.00%  [0.0, 8.341, 8.34]
+temperature_battery                 object        0.00%  [0.0, 23.059, 23.059]
+voltage_load                        float64      87.87%  [-0.026, 8.329, 8.32]
+current_load                        float64      87.87%  [0.152, 2.523, 2.521]
+temperature_mosfet                  float64      87.87%  [22.64, 22.65, 22.66]
+temperature_resistor                float64      87.87%  [23.2, 23.21, 23.2]
+mission_type                        float64      87.87%  [0.0, 0.0, 0.0]
+
+==============================================================================
+  2. COLUMN CLASSIFICATION BY MODE (-1 = discharge, 0 = rest, 1 = charge)
+==============================================================================
+
+Mode = -1   (3,439,335 rows, 12.1% of dataset)
+    column                                  NaN%
+    start_time                             0.00%
+    time                                   0.00%
+    voltage_charger                        0.00%
+    temperature_battery                    0.00%
+    voltage_load                           0.00%
+    current_load                           0.00%
+    temperature_mosfet                     0.00%
+    temperature_resistor                   0.00%
+    mission_type                           0.00%
+
+Mode = 0   (11,408,179 rows, 40.2% of dataset)
+    column                                  NaN%
+    start_time                             0.00%
+    time                                   0.00%
+    voltage_charger                        0.00%
+    temperature_battery                    0.00%
+    voltage_load                         100.00%
+    current_load                         100.00%
+    temperature_mosfet                   100.00%
+    temperature_resistor                 100.00%
+    mission_type                         100.00%
+
+Mode = 1   (13,510,750 rows, 47.6% of dataset)
+    column                                  NaN%
+    start_time                             0.00%
+    time                                   0.00%
+    voltage_charger                        0.00%
+    temperature_battery                    0.00%
+    voltage_load                         100.00%
+    current_load                         100.00%
+    temperature_mosfet                   100.00%
+    temperature_resistor                 100.00%
+    mission_type                         100.00%
+
+==============================================================================
+  3. TIME COLUMN DIAGNOSIS
+==============================================================================
+Time-like columns found: ['start_time', 'time']
+
+--- Column: start_time ---
+    NaN%:         100.00%
+    min/max:      nan / nan
+    first 5:      []
+
+--- Column: time ---
+    NaN%:         0.00%
+    min/max:      0.0 / 4951797.759000001
+    first 5:      [0.0, 1.8939999999999984, 2.814, 3.7340000000000018, 4.654000000000004]
+    within battery00: non-decreasing on 100.00% of consecutive steps, median dt = 0.9760
+
+
+==============================================================================
+  4. MODE SEGMENT STATS
+==============================================================================
+Using time column for duration measurement: time
+
+battery                                        #seg -1   #seg 0   #seg 1  med rows -1   med dur -1
+--------------------------------------------------------------------------------------------------------------
+battery00                                          175      368      192          483       470.01
+battery01                                          891     1817      925          758       758.67
+battery10                                          148      311      162          486       476.93
+battery11                                          884     1807      922          766       764.22
+battery20                                           33       69       35          437       435.71
+battery21                                           82      182       99          428       420.56
+battery22                                          454      949      494          576       582.92
+battery23                                          253      528      274          523       527.00
+battery30                                           81      174       92          422       413.96
+battery31                                          563     1153      589          557       558.47
+battery40                                          142      279      136          443       447.43
+battery41                                          487      997      509          489       487.63
+battery50                                          133      276      142          460       452.57
+battery51                                          308      635      326          533       540.50
+battery52                                          262      539      276          535       534.96
+
+==============================================================================
+  5. PER-PACK CURRENT PROFILE (regular vs reference discharge)
+==============================================================================
+Current column: current_load
+Mission column: mission_type
+
+battery                                       mean I (all dis) mean I (mission=0) mean I (mission=1)    n reg
+-------------------------------------------------------------------------------------------------------------------
+battery00                                               12.801              2.519             16.611    77340
+battery01                                                8.466              2.519              9.633   626126
+battery10                                               12.921              2.519             16.478    66946
+battery11                                                8.454              2.519              9.640   633202
+battery20                                               13.080              2.520             19.425    11823
+battery21                                               14.592              2.520             19.583    33026
+battery22                                               10.965              2.518             13.372   243287
+battery23                                               12.036              2.519             14.973   122725
+battery30                                               14.535              2.519             19.542    32238
+battery31                                               10.980              2.519             13.258   300845
+battery40                                               13.609              2.519             17.642    45745
+battery41                                               12.031              2.518             14.919   198387
+battery50                                               13.284              2.518             17.714    55384
+battery51                                               11.798              2.518             14.714   149804
+battery52                                               11.814              2.518             14.830   130168
+
+==============================================================================
+  6. DOCUMENTED-LEVEL SNAPPING (regular-mission only)
+==============================================================================
+Documented levels: [9.3, 12.9, 14.3, 16.0, 17.0, 19.0]
+
+battery                                       mean I (mission=1)  snapped level  deviation
+-----------------------------------------------------------------------------------------------
+battery00                                                 16.611          17.00     -0.389
+battery01                                                  9.633           9.30     +0.333
+battery10                                                 16.478          16.00     +0.478
+battery11                                                  9.640           9.30     +0.340
+battery20                                                 19.425          19.00     +0.425
+battery21                                                 19.583          19.00     +0.583
+battery22                                                 13.372          12.90     +0.472
+battery23                                                 14.973          14.30     +0.673
+battery30                                                 19.542          19.00     +0.542
+battery31                                                 13.258          12.90     +0.358
+battery40                                                 17.642          17.00     +0.642
+battery41                                                 14.919          14.30     +0.619
+battery50                                                 17.714          17.00     +0.714
+battery51                                                 14.714          14.30     +0.414
+battery52                                                 14.830          14.30     +0.530
+
+Groups formed by snapping (should be ~6-7):
+    9.30 A → 2 pack(s)
+    12.90 A → 2 pack(s)
+    14.30 A → 4 pack(s)
+    16.00 A → 1 pack(s)
+    17.00 A → 3 pack(s)
+    19.00 A → 3 pack(s)
+
+Mean packs per group: 2.50
+Within-group mean deviations:
+    9.30 A: mean dev = +0.336 A, std = 0.005
+    12.90 A: mean dev = +0.415 A, std = 0.081
+    14.30 A: mean dev = +0.559 A, std = 0.113
+    16.00 A: mean dev = +0.478 A, std = nan
+    17.00 A: mean dev = +0.323 A, std = 0.617
+    19.00 A: mean dev = +0.517 A, std = 0.082
+
+==============================================================================
+  7. PER-CYCLE CAPACITY (integrate |I| dt using relative_time)
+==============================================================================
+Time column used: time
+Current column used: current_load
+
+Total discharge cycles: 4,896
+Cycles with non-NaN capacity: 4,863
+Capacity NaN%: 0.67%
+
+battery                                         n cycles    cap min   cap median    cap max    cap std
+---------------------------------------------------------------------------------------------------------
+battery00                                            175     0.0003       2.1740     2.4526     0.3940
+battery01                                            891     0.0003       2.0355     2.4530     0.3977
+battery10                                            148     0.0003       2.1747     2.4549     0.3010
+battery11                                            884     0.0003       2.0602     2.4586     0.3456
+battery20                                             33     2.1028       2.3437     2.4524     0.0718
+battery21                                             82     0.1257       2.2803     2.4631     0.2663
+battery22                                            454     0.0003       2.1448     2.4570     0.3573
+battery23                                            253     0.0003       2.1954     2.4861     0.4085
+battery30                                             81     0.9043       2.2423     2.4591     0.1825
+battery31                                            563     1.6979       2.0637     2.4435     0.1613
+battery40                                            142     0.0003       2.1882     2.4532     0.6881
+battery41                                            487     0.0001       2.0509     2.4456     0.7669
+battery50                                            133     0.0003       2.2165     2.4476     0.3545
+battery51                                            308     0.0003       2.1837     2.4829     0.4534
+battery52                                            262     0.0003       2.2003     2.4643     0.3198
+
+==============================================================================
+  8. REFERENCE-DISCHARGE CAPACITY TREND (SOH signal)
+==============================================================================
+Reference discharges (mission_type=0): 242 cycles across 15 packs
+
+battery                                          n ref    first cap     last cap   first/last
+----------------------------------------------------------------------------------------------------
+battery00                                            9       2.4526       1.9994        1.227
+battery01                                           44       2.4530       1.8182        1.349
+battery10                                            8       2.4549       2.0589        1.192
+battery11                                           43       2.4530       1.8274        1.342
+battery20                                            2       2.4524       2.3121        1.061
+battery21                                            4       2.4513       2.2239        1.102
+battery22                                           23       2.4317       1.6783        1.449
+battery23                                           13       2.4755       1.9902        1.244
+battery30                                            4       2.4591       2.1794        1.128
+battery31                                           27       2.4435       1.8447        1.325
+battery40                                            6       2.4532       2.1592        1.136
+battery41                                           21       2.4456       1.8854        1.297
+battery50                                            9       2.4471       2.0722        1.181
+battery51                                           16       2.4509       1.9782        1.239
+battery52                                           13       2.4619       2.0342        1.210
+
+==============================================================================
+  9. SANITY CHECKS
+==============================================================================
+Mode column consistency check:
+    Unique mode values: [np.float64(-1.0), np.float64(0.0), np.float64(1.0)]
+    Unexpected values:  none
+
+Load-side columns populated ONLY during discharge (mode=-1)?
+    current_load                    dis NaN%:   0.00  rest NaN%: 100.00  chg NaN%: 100.00
+    voltage_load                    dis NaN%:   0.00  rest NaN%: 100.00  chg NaN%: 100.00
+    temperature_mosfet              dis NaN%:   0.00  rest NaN%: 100.00  chg NaN%: 100.00
+    temperature_resistor            dis NaN%:   0.00  rest NaN%: 100.00  chg NaN%: 100.00
+    mission_type                    dis NaN%:   0.00  rest NaN%: 100.00  chg NaN%: 100.00
+
+
+==============================================================================
+  10. ASSUMPTION VERDICT TABLE for quality_score.py
+==============================================================================
+Each row is an assumption baked into quality_score.py. Verdict is based on
+the diagnostics above.
+
+assumption                                                          verdict   evidence
+----------------------------------------------------------------------------------------------------------------------------------
+col_time = relative_time (not start_time)                      CONTRADICTED   detected 'time'
+mode column values are exactly {-1, 0, 1}                         CONFIRMED   observed [np.float64(-1.0), np.float64(0.0), np.float64(1.0)]
+current column non-NaN during discharge                           CONFIRMED   0.00% NaN during discharge
+per-cycle capacity is non-NaN for most cycles                     CONFIRMED   0.67% NaN capacity
+replicate snapping produces 6-7 groups                            CONFIRMED   6 groups formed
+reference-discharge capacity trends downward (degradation visible)      CONFIRMED   92% of packs show downward trend
+
+==============================================================================
+  END OF EXPLORATION
+==============================================================================

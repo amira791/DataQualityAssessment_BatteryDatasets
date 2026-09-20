@@ -16,6 +16,10 @@ battery prognostics and health management
 Dataset URL:
 https://data.nasa.gov/dataset/randomized-and-recommissioned-battery-dataset
 
+Assessment subset:
+Regular accelerated-life-test battery packs
+(regular_alt_batteries folder)
+
 
 ============================================================
 1. DATASET IDENTITY
@@ -55,9 +59,22 @@ Lithium-ion battery packs
 Battery unit:
 Battery pack
 
+Pack configuration:
+2S (two cells in series)
+
+Nominal cell capacity:
+Approximately 1.1 Ah
+
+Nominal cell voltage:
+Approximately 3.3 V (LFP family)
+
+Pack voltage window:
+Approximately 4.0 - 7.30 V (2 x cell 2.0-3.65 V)
+
 Number of identified battery packs:
 Multiple packs across regular, recommissioned, and second-life
-testing categories.
+testing categories. The regular folder (assessed here) contains
+15 packs.
 
 Second-life batteries:
 Some packs are reconstructed from cells that survived previous
@@ -68,8 +85,9 @@ Initial battery configuration:
 Varies according to the experimental group and battery pack.
 
 Battery chemistry:
-Lithium-ion; detailed chemistry information should be verified
-from the original NASA documentation where required.
+Lithium-ion, LFP family. Detailed cell model number is not
+provided in the dataset metadata; pack-level configuration and
+chemistry are documented and determine the electrical envelope.
 
 
 ============================================================
@@ -129,29 +147,38 @@ packs and subjected to lower-stress operating profiles.
 
 
 ============================================================
-5. LOAD-PROFILE DIVERSITY
+5. LOAD-PROFILE DIVERSITY (regular_alt_batteries folder)
 ============================================================
 
+The regular folder contains battery packs subject to constant
+and variable loading conditions, where the current range of the
+latter remains the same throughout the battery life.
+
 Constant-current groups:
-- Approximately 9.30 A
-- Approximately 12.9 A
-- Approximately 14.3 A
-- Approximately 16.0 A
-- Approximately 19.0 A
+* 9.30 A:  battery packs 0.1 and 1.1
+* 12.9 A:  battery packs 3.1 and 2.2
+* 14.3 A:  battery packs 2.3 and 5.2
+* 16.0 A:  battery packs 0.0 and 1.0
+* 19.0 A:  battery packs 2.0, 3.0 and 2.1
 
 Variable-current groups:
-Current changes randomly between predefined levels with segment
-durations of approximately 40, 60, or 80 seconds.
+Those battery packs are subjected to variable current within a
+discharge cycle. The current level segments are kept constant for
+either 40, 60 or 80 seconds before switching to another level.
+Both the amplitude and length of each current level segment were
+randomly selected to create a pool of different random loading
+discharge missions.
 
-Variable-current group 1:
-Approximately 14.3 A average, with current levels between
-approximately 12.9 and 16 A.
+* 14.3 A average (12.9 A - 16 A range): battery packs 4.1 and 5.1
+* 17.0 A average (16 A - 19 A range):   battery packs 4.0 and 5.0
 
-Variable-current group 2:
-Approximately 17.0 A average, with current levels between
-approximately 16 and 19 A.
+The documented discharge-current levels for the regular folder are
+therefore approximately: 9.30, 12.9, 14.3, 16.0, 17.0 and 19.0 A
+across 7 experimental conditions and 15 packs (mean 2.14 packs per
+condition).
 
-Recommissioned profiles:
+Recommissioned profiles (documented for the broader dataset, not
+present in the regular folder):
 - 16 A -> 14.3 A
 - 14.3 A -> 16 A
 - 16 A -> 12.9 A
@@ -159,13 +186,11 @@ Recommissioned profiles:
 - 16 A -> 14.3 A -> 7.5 A
 - 16 A -> 7.5 A -> 14.3 A
 
-Second-life profiles:
+Second-life profiles (documented for the broader dataset, not
+present in the regular folder):
 - 16.0 A -> 9.3 A
 - 14.3 A -> 7.5 A
 - 12.9 A -> 5.0 A
-
-The dataset therefore provides substantial diversity in current
-profiles and load transitions.
 
 
 ============================================================
@@ -193,8 +218,14 @@ Discharge mission variables:
 - Mission type
 
 Temporal information:
-Continuous relative time is provided from the beginning of testing
-until battery failure.
+Continuous relative time is provided from the beginning of
+testing until battery failure.
+
+Note on charger voltage:
+The "charger voltage" column records the terminal voltage of the
+charger, not the pack terminal voltage. It is therefore not
+directly comparable to the pack-voltage window and is excluded
+from the physical-plausibility check.
 
 
 ============================================================
@@ -222,3 +253,99 @@ and may require derivation from capacity-related measurements or
 reference discharge data.
 
 
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+1 chemistry family (LFP). No chemistry variation between packs.
+
+Pack configuration:
+All packs in the regular folder are 2S, ~1.1 Ah per cell.
+
+Temperature diversity:
+Not a controlled experimental factor. Battery surface
+temperatures vary with ambient and self-heating; there is no
+systematic multi-temperature characterisation.
+
+DoD diversity:
+Full-depth cycling. Partial-DoD profiles are not part of the
+regular-folder design.
+
+C-rate / load-profile diversity:
+High. 7 documented discharge conditions across 15 packs, spanning
+9.30 A to 19.0 A (approximately 8.5C to 17.3C at cell level on
+1.1 Ah nominal capacity), including both constant-current and
+variable-current groups.
+
+Replicate cells:
+Approximately 2.14 packs per documented discharge condition on
+average (7 conditions, 15 packs; some conditions have 2 packs,
+one condition has 3).
+
+Dynamic load profiles:
+Present. mission_type = 1 (regular/variable mission) is used in
+the majority of discharge cycles; mission_type = 0 (reference
+constant-current 2.5 A) is used for periodic reference
+discharges.
+
+Calendar aging:
+Absent as a dedicated experimental condition. All aging is
+cyclic; rest periods exist between cycles but are not structured
+as calendar-aging experiments.
+
+Real-world operation:
+Absent. All testing is laboratory-based. Variable-current
+missions simulate dynamic loading but are prescribed laboratory
+profiles, not field measurements.
+
+
+============================================================
+9. QUALITY-ASSESSMENT NOTES
+============================================================
+
+Design rule:
+Hardcode only facts that cannot be determined from the raw
+cycle-data files at all. Everything else is computed dynamically.
+
+Physical plausibility:
+- Current (cell level):  charge <= 1.0C, discharge <= 18.0C,
+  with 1C = 1.1 Ah (LFP cell nominal capacity).
+  The 18.0C ceiling is dataset-appropriate: NASA's regular folder
+  documents discharge currents up to 19 A pack (= 19 A per cell,
+  2S) at 1.1 Ah nominal capacity, i.e. ~17.3C, as a deliberate
+  high-rate accelerated-life design. The general 5C envelope
+  would flag nearly every cycle, so an 18C ceiling is used to
+  catch genuine outliers (sensor spikes, unit errors) without
+  flagging the design.
+- Temperature (battery surface): -20 to 60 C.
+- Voltage: PACK voltage is NOT checked against a fixed envelope
+  here, because the charger-side column records charger terminal
+  voltage (near 0 V between pulses, above pack max during CV) and
+  the load-side column is populated only during discharge/rest.
+  There is no always-on pack-voltage column, so a fixed-window
+  check would misapply a bound to a column whose semantics do not
+  match. This is documented rather than papered over.
+
+Current envelope is applied at cell level. The dataset is a 2S
+pack (series), so I_cell = I_pack; pack-level current is used
+directly without a parallel divisor.
+
+Documented vs. observed current level:
+NASA's README documents seven discharge-current groups for the
+regular folder. Each pack's measured mean discharge current is
+snapped to its nearest documented level and compared. This is a
+protocol cross-check, scored separately from physical
+plausibility.
+
+Replicate cells:
+Grouped by documented discharge-current level (from the README),
+not by data-derived mean current. This respects NASA's stated
+experimental design instead of letting small numerical
+differences split replicates.
+
+Cycle contribution per pack:
+Computed within documented replicate groups at the same
+discharge-current level, not pooled across all packs. Pooled CV
+would be trivially large by design for this heterogeneous
+dataset.
