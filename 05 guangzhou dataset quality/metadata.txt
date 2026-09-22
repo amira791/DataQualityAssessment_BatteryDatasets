@@ -10,20 +10,21 @@ Dataset type:
 Real-world electric vehicle operational dataset
 
 Source:
-Guangzhou electric vehicle fleet data, South China University of
-Technology (Translab-SCUT)
+Guangzhou New Energy Intelligent Vehicle Big Data Monitoring
+Platform, South China University of Technology (Translab-SCUT)
 
 Repository:
 https://github.com/Translab-SCUT/Electric-vehicle-operation-data
 
 Primary reference paper:
-Xu, Y., et al. "Scalable and generalizable deep learning for
+Jing, M., et al. "Scalable and generalizable deep learning for
 battery state of health estimation in on-road electric vehicles."
 Journal of Energy Chemistry, 2025.
 DOI: 10.1016/j.jechem.2025.07.020
 
 Observation period:
-Approximately one month per vehicle
+Public release: 1 month per vehicle
+Full dataset (paper): 1 year
 
 Number of vehicles:
 10
@@ -50,6 +51,16 @@ LFP vehicles:
 
 Initial battery capacity:
 120 -- 645 Ah
+  Vehicle#1:  150 Ah (NCM)
+  Vehicle#2:  150 Ah (NCM)
+  Vehicle#3:  160 Ah (NCM)
+  Vehicle#4:  160 Ah (NCM)
+  Vehicle#5:  160 Ah (NCM)
+  Vehicle#6:  160 Ah (NCM)
+  Vehicle#7:  120 Ah (LFP)
+  Vehicle#8:  645 Ah (LFP)
+  Vehicle#9:  505 Ah (LFP)
+  Vehicle#10: 505 Ah (LFP)
 
 Dataset type:
 Real-world battery operational dataset (on-road fleet telematics)
@@ -80,12 +91,8 @@ Vehicle#1 -- #6 use 91-series-cell battery packs.
 
 LFP configuration:
 Vehicle#7 and #8 have confidential pack configurations.
-
-Vehicle#9:
-360 cells; exact series/parallel configuration unknown.
-
-Vehicle#10:
-324 cells; exact series/parallel configuration unknown.
+Vehicle#9: 360 cells total; series/parallel split unknown.
+Vehicle#10: 324 cells total; series/parallel split unknown.
 
 Replicate vehicles:
 10 independent vehicles
@@ -105,13 +112,15 @@ Transmission:
 Real-time telematics through the onboard T-BOX
 
 Observation period:
-Approximately one month per vehicle
+Public release: 1 month per vehicle
+Full dataset (paper): 1 year
 
 Sampling frequency:
-0.1 Hz or 0.5 Hz depending on the vehicle
+0.1 Hz (9 vehicles)
+0.5 Hz (Vehicle#7 only)
 
 Total data points:
-Approximately 11.8 million observations across the 10 vehicles
+~12.83 million (per the paper)
 
 
 ============================================================
@@ -150,7 +159,7 @@ Naturally occurring through real-world driving and charging
 conditions.
 
 Ambient temperature:
-Available indirectly through pack / cell thermal response.
+Matched via Weather API + GPS (paper).
 
 
 ============================================================
@@ -171,17 +180,19 @@ Recorded variables (columns in each vehicle#N.xlsx):
 * bcell_maxTemp       -- maximum cell temperature
 * bcell_minTemp       -- minimum cell temperature
 
-Current convention:
-Positive during CHARGING, negative during DISCHARGING.
-(The accompanying text notes in some secondary sources state the
-opposite; the GitHub README and the reference paper are treated as
-authoritative.)
+Current convention (verified from raw CAN data):
+NEGATIVE = charging
+POSITIVE = discharging / traction
+Note: some secondary sources state the opposite; the raw CAN
+signal is authoritative. Driving includes regen braking, so a
+legitimate fraction of driving rows is negative.
 
 Sampling:
 0.1 Hz or 0.5 Hz depending on the vehicle.
 
 Data volume:
-Approximately 11.8 million observations across 10 vehicles.
+~12.83 million observations (paper).
+Public GitHub release: 1 month per vehicle.
 
 
 ============================================================
@@ -201,55 +212,66 @@ Vehicle diversity:
 Passenger vehicles and buses
 
 Dynamic load profiles:
-Present through naturally varying driving and charging conditions
+Present through naturally varying driving and charging
+conditions
 
 Real-world operation:
 Present
 
 Mileage:
-Approximately 27,318 -- 114,413 km per vehicle
+27,318 -- 114,413 km per vehicle
+  Vehicle#1:  69,043 km
+  Vehicle#2:  73,950 km
+  Vehicle#3:  79,440 km
+  Vehicle#4:  96,279 km
+  Vehicle#5: 114,413 km
+  Vehicle#6:  27,318 km
+  Vehicle#7:  32,496 km
+  Vehicle#8:  82,668 km
+  Vehicle#9:  43,988 km
+  Vehicle#10: 27,677 km
 
 
 ============================================================
-7. PHYSICAL BOUNDS (paper-derived)
+7. PHYSICAL BOUNDS (paper-derived + exploration-refined)
 ============================================================
 
-The following bounds are derived from the reference paper and the
-vehicle pack structure documented in the GitHub repository. They are
-used by the physical-plausibility check in the quality-assessment
-code.
+The following bounds are derived from the reference paper and
+refined during data exploration. They are used by the
+physical-plausibility check in the quality-assessment code.
 
 Pack-level:
 
-* Pack voltage:     250 -- 450 V
-    Implied from 91 NCM cells in series; typical NCM cell voltage
-    3.0 -- 4.2 V gives ~273 -- 382 V, with tolerance for
-    transient swings and pack ageing. Paper Fig. 2(d) shows the
-    observed pack-voltage range.
+* Pack voltage (per chemistry, exploration-refined):
+    NCM: 250 -- 400 V
+    LFP: 450 -- 620 V
+    (Paper Fig. 2(d) shows the overall pack-voltage range;
+    the code splits by chemistry for tighter QC.)
 
-* Pack current:     -200 -- +200 A
-    Driving / charging operational range. Paper Fig. 2(e) shows
-    the dynamic current profile. Positive = charging,
-    negative = discharging.
+* Pack current:
+    -350 -- +200 A
+    (Paper Fig. 2(e) shows the dynamic current profile;
+    bound widened during exploration to cover regen and
+    fast-charge transients.)
 
 * Battery temperature (max cell temperature):
-                    10 -- 40 C
-    Paper Fig. 2(h,i): "cell temperatures fluctuate between 10
-    and 40 C".
+    0 -- 60 C
+    (Paper Fig. 2(h,i) reports 10 -- 40 C; the bound was
+    widened to cover summer operation and individual sensor
+    glitches at 255 C are still flagged.)
 
 * Ambient temperature:
-                    0 -- 30 C
-    Paper Fig. 2(c): "ambient operating temperatures range from
-    approximately 0 to 30 C".
+    0 -- 30 C (paper Fig. 2(c))
 
 Cell-level:
 
-* Cell voltage:     2.5 -- 4.2 V (NCM) / 2.0 -- 3.65 V (LFP)
+* Cell voltage:
+    2.5 -- 4.2 V (NCM) / 2.0 -- 3.65 V (LFP)
     Paper Fig. 2(f,g) shows cell voltages. Some readings >6 V
     were flagged as errors in the paper.
 
-* Cell temperature: 10 -- 40 C
-    Paper Fig. 2(h,i).
+* Cell temperature:
+    10 -- 40 C (paper Fig. 2(h,i))
 
 
 ============================================================
@@ -260,22 +282,44 @@ SOC:
 Directly available from the BMS.
 
 Initial capacity:
-Available for each vehicle.
+Available for each vehicle (120 -- 645 Ah).
 
 Direct SOH:
 Not directly provided.
 
+SOH derivation:
+Ah-integration during charging segments with ΔSOC > 20%.
+Formula: SOH = C_now / C_rated × 100%.
+Post-processing: Z-score outlier removal + LOWESS smoothing.
+
 Discharge capacity:
 Not directly provided as a dedicated cycle-level measurement.
 
-SOH derivation:
-Requires estimation from the available operational signals or
-another capacity-based procedure.
-
 Long-term degradation:
-Limited by the approximately one-month observation period.
+Limited by the observation period (1 month public / 1 year full).
 
 End-of-life:
 Not specified.
 
 
+============================================================
+9. DATA CLEANING (paper)
+============================================================
+
+1. Remove duplicates based on timestamp
+2. Match environmental temperature (Weather API + GPS)
+3. Detect outliers (IQR method) -> replace with adjacent values
+4. Segment data (Driving / Charging / Resting)
+5. Filter charging segments (ΔSOC > 20%)
+6. Fill missing values (linear interpolation)
+
+
+============================================================
+10. LIMITATIONS (paper)
+============================================================
+
+- Pack-level only (no per-cell data)
+- Temperature range limited (0 -- 30 C ambient)
+- Same-platform bias (Guangzhou only)
+- No extreme conditions tested
+- Some pack structures confidential

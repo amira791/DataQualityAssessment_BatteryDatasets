@@ -7,25 +7,25 @@ used for the Oxford, MIT-Stanford-TRI, CALCE, SNL, and NASA datasets.
 
 Design rule: hardcode ONLY facts that cannot be determined from the raw
 data files at all (calendar aging — absent by design; per-chemistry voltage
-envelopes — derived from the paper and pack structure). Everything else —
+envelopes — derived from cell chemistry and pack structure). Everything else —
 chemistry/type diversity, per-vehicle bounds violations, missing values,
 noise, distribution balance, temporal coherence, dynamic-operation presence,
 replicate vehicles — is computed dynamically from the xlsx files and their
 columns.
 
-Physical plausibility (paper-derived, DOI 10.1016/j.jechem.2025.07.020 +
-exploration confirmation of per-chemistry pack structure):
-    NCM passenger (Vehicles #1-#6, 91S):  pack voltage 250 - 400 V
-    LFP (Vehicles #7-#10, buses):         pack voltage 450 - 620 V
-    Pack current, all vehicles:           -350 - 200 A
-    Battery temperature (max cell):       0 - 60 C  (bound widened from
-        the paper's 10-40 C to cover summer operation; individual sensor
-        glitches at 255 C are still flagged)
+Physical plausibility bounds:
+    NCM (Vehicles #1-#6, 91 series cells from GitHub):
+        pack voltage 227.5 - 382.2 V (91 × 2.5V, 91 × 4.2V)
+    LFP (Vehicles #7-#10): NOT VALIDATED
+        GitHub reports only "total cells" (360, 324) for #9-#10,
+        no pack structure disclosed for #7-#8. Series cell count unknown,
+        so physically valid pack voltage bounds cannot be derived.
+    Pack current, all vehicles: -200 - 200 A
+    Battery temperature (max cell): 0 - 45 C
 
 Current sign convention for THIS dataset (verified from data, not README):
     NEGATIVE = charging  (BMS perspective)
     POSITIVE = discharging / traction  (motor perspective)
-    The README states the opposite; the raw CAN signal is authoritative.
     Driving includes regen braking, so ~15% of driving rows are legitimately
     negative.
 
@@ -75,8 +75,9 @@ PROTOCOL_METADATA = {
     "capacity": True,
     "sampling_frequency": True,
     "data_acquisition_chain": True,
-    "current_convention": False,   # README states the opposite of the raw signal
-    "pack_structure": False,       # V7-V10 partly confidential
+    "current_convention": False,
+    "pack_structure_ncm": True,    # 91 series cells disclosed
+    "pack_structure_lfp": False,   # V7-V10 undisclosed/ambiguous
 }
 
 # Vehicle metadata from the GitHub README
@@ -93,18 +94,36 @@ VEHICLE_INFO = {
     "Vehicle#10": {"type": "Bus",       "chemistry": "LFP", "capacity_Ah": 505},
 }
 
-# Per-chemistry voltage envelopes (paper-derived + exploration-confirmed)
+# ============================================================================
+# VOLTAGE BOUNDS — ONLY NCM (LFP cannot be validated)
+# ============================================================================
+# Source for NCM cell count: https://github.com/Translab-SCUT/Electric-vehicle-operation-data
+#   (Vehicles #1-#6: "91 battery cells connected in series")
+# Source for NCM cell voltage limits: standard NCM datasheet (2.5V - 4.2V)
+#
+# LFP: GitHub reports only "total cells" (360, 324) for #9-#10, no pack
+#      structure disclosed for #7-#8. Series cell count is unknown, so
+#      physically valid pack voltage bounds cannot be derived.
+
 VOLTAGE_BOUNDS = {
-    "NCM": (250.0, 400.0),
-    "LFP": (450.0, 620.0),
+    "NCM": (227.5, 382.2),   # 91 series cells × 2.5-4.2V
 }
 
-# Current and temperature bounds (fleet-wide; current is pack-level and
-# broadly similar across chemistries; temperature is a cell-surface signal)
-PACK_I_MIN_A, PACK_I_MAX_A = -350.0, 200.0
-TEMP_MIN_C, TEMP_MAX_C = 0.0, 60.0
+VOLTAGE_BOUNDS_SOURCE = {
+    "NCM": "91 series cells (GitHub) × 2.5-4.2V (NCM datasheet)",
+    "LFP": "NOT AVAILABLE — series cell count not disclosed for Vehicles #7-#10",
+}
 
-# Miles-per-row tolerance for mileage monotonicity
+# ============================================================================
+# OTHER PHYSICAL BOUNDS
+# ============================================================================
+# Current bounds (estimated from Fig. 2e; paper does not give exact values)
+PACK_I_MIN_A, PACK_I_MAX_A = -200.0, 200.0  # Conservative estimate
+
+# Temperature bounds (paper states 10-40°C cell, 0-30°C ambient)
+TEMP_MIN_C, TEMP_MAX_C = 0.0, 45.0  # 45°C allows small margin
+
+# Mileage tolerance (engineering choice, not from paper)
 MILEAGE_TOLERANCE_KM = 1.0
 
 # ============================================================================
@@ -243,23 +262,33 @@ print(f"Detected columns -> time:{col_time} speed:{col_speed} charge:{col_charge
 print("== 1. Correctness ==")
 
 # ---------------------------------------------------------------------------
-# Physical plausibility -- pack voltage (per-chemistry), current, temperature
+# Physical plausibility -- pack voltage (NCM only), current, temperature
 # ---------------------------------------------------------------------------
 viol, total = 0, 0
 
-# Voltage: per-chemistry bounds
+# Voltage: explicit per-chemistry handling (NCM validated, LFP not)
 if col_v_pack:
-    for chem, (vlo, vhi) in VOLTAGE_BOUNDS.items():
+    for chem in ["NCM", "LFP"]:
+        if chem not in VOLTAGE_BOUNDS:
+            n_rows = (data["_chem"] == chem).sum()
+            print(f"    Physical plausibility -- Pack voltage ({chem}): "
+                  f"NOT VALIDATED — series cell count undisclosed "
+                  f"({n_rows:,} rows excluded)")
+            continue
+        
+        vlo, vhi = VOLTAGE_BOUNDS[chem]
         s = data.loc[data["_chem"] == chem, col_v_pack].dropna()
         if len(s) == 0:
+            print(f"    Physical plausibility -- Pack voltage ({chem}): "
+                  f"no data available")
             continue
         v = ((s < vlo) | (s > vhi)).sum()
         viol += int(v)
         total += len(s)
         pct = v / len(s) * 100
-        print(f"    Physical plausibility -- Pack voltage ({chem}, bounds [{vlo}, {vhi}] V): "
-              f"{v:,}/{len(s):,} ({pct:.3f}%) outside, observed range "
-              f"[{s.min():.1f}, {s.max():.1f}]")
+        print(f"    Physical plausibility -- Pack voltage ({chem}, "
+              f"bounds [{vlo}, {vhi}] V): {v:,}/{len(s):,} ({pct:.3f}%) "
+              f"outside, observed range [{s.min():.1f}, {s.max():.1f}]")
 
 # Current: fleet-wide bounds
 if col_i_pack:
@@ -292,24 +321,20 @@ if col_t_max:
 pct_implausible = (viol / total * 100) if total else 0
 finding_physical = (
     f"{viol:,}/{total:,} pack voltage/current/temperature readings "
-    f"({pct_implausible:.3f}%) outside the paper- and structure-derived bounds. "
-    f"Pack voltage checked per chemistry: NCM {VOLTAGE_BOUNDS['NCM'][0]}-"
-    f"{VOLTAGE_BOUNDS['NCM'][1]} V, LFP {VOLTAGE_BOUNDS['LFP'][0]}-"
-    f"{VOLTAGE_BOUNDS['LFP'][1]} V. Pack current {PACK_I_MIN_A} to {PACK_I_MAX_A} A; "
-    f"battery temperature {TEMP_MIN_C}-{TEMP_MAX_C} C (widened from the paper's "
-    f"10-40 C to cover summer operation). Cell-level voltage and temperature "
-    f"are excluded because Vehicle#7 does not broadcast them."
+    f"({pct_implausible:.3f}%) outside the physically-derived bounds. "
+    f"NCM pack voltage checked: {VOLTAGE_BOUNDS['NCM'][0]}-"
+    f"{VOLTAGE_BOUNDS['NCM'][1]} V "
+    f"(91 series cells from GitHub × 2.5-4.2V from datasheet). "
+    f"LFP pack voltage NOT validated: series cell count undisclosed for "
+    f"Vehicles #7-#10 (GitHub reports 'total cells' only). "
+    f"Pack current {PACK_I_MIN_A} to {PACK_I_MAX_A} A; "
+    f"battery temperature {TEMP_MIN_C}-{TEMP_MAX_C} C."
 )
 add("Correctness", "Physical plausibility",
     score_pct_low_is_good(pct_implausible), finding_physical)
 
 # ---------------------------------------------------------------------------
 # Current sign convention (verified from data, not README)
-#   Charging (signal == 1): current should be NEGATIVE
-#   Driving  (signal == 3): current should be POSITIVE-dominant (with regen
-#                            exceptions, ~15% legitimately negative)
-#   Idle     (signal == 0): current near zero
-#   Charge-complete (signal == 4): current small negative
 # ---------------------------------------------------------------------------
 if col_i_pack and col_charge:
     valid = data.dropna(subset=[col_i_pack, col_charge]).copy()
@@ -320,18 +345,6 @@ if col_i_pack and col_charge:
     drv_pos_pct = (drv[col_i_pack] > 0).mean() * 100 if len(drv) else 0
     n_chg, n_drv = len(chg), len(drv)
 
-    # Scoring rules for a real-world dataset with regen braking:
-    #   - Charging rows must have negative current with essentially no
-    #     exceptions (CV/trickle-charge tails may contribute a small share
-    #     of positive rows). Score this side strictly, like any convention
-    #     check.
-    #   - Driving rows must be positive-DOMINANT, but a legitimate fraction
-    #     (15-25% in typical city/highway mix) is negative due to regen
-    #     braking. Require >= 75% positive, which is the physical floor for
-    #     a real EV duty cycle.
-    #   - The overall score is driven by the charging side (the primary
-    #     convention signal) and downgraded if the driving side fails the
-    #     75% physical-plausibility floor or the 50% sanity floor.
     charge_score = score_pct_high_is_good(chg_neg_pct)
 
     if drv_pos_pct >= 75.0:
@@ -354,7 +367,7 @@ if col_i_pack and col_charge:
         overall = "-"
 
     finding_sign = (
-        f"Convention verified from raw CAN data (the README states the opposite; "
+        f"Convention verified from raw CAN data; "
         f"the data is authoritative): negative = charging, positive = discharging. "
         f"Charging (signal=1, n={n_chg:,}): {chg_neg_pct:.2f}% of rows have negative "
         f"current — this is the primary convention signal and it is essentially "
@@ -375,7 +388,6 @@ else:
 # ============================================================================
 print("\n== 2. Completeness ==")
 
-# Essential = only powertrain-level columns present on every vehicle
 essential_cols = [c for c in [col_time, col_v_pack, col_i_pack, col_soc] if c]
 if essential_cols:
     missing = data[essential_cols].isna().sum().sum()
@@ -482,7 +494,6 @@ if col_v_pack and col_i_pack:
         if len(v) > 20:
             d = np.abs(np.diff(v))
             if len(d):
-                # Reference: median pack voltage for that vehicle
                 ref = grp[col_v_pack].median()
                 if ref > 0:
                     noise_pct_list.append(np.median(d) / ref * 100)
@@ -514,7 +525,7 @@ finding_types = f"{n_types} vehicle types across the fleet ({types})."
 add("Representativeness and diversity", "Vehicle type diversity",
     score_diversity_count(n_types), finding_types)
 
-# Temperature conditions (from measured max cell temperature, excluding all-NaN vehicles)
+# Temperature conditions
 if col_t_max:
     per_vehicle_mean = data.groupby("vehicle_id")[col_t_max].mean().round(0).dropna()
     n_temp = per_vehicle_mean.nunique()
@@ -532,7 +543,7 @@ else:
     add("Representativeness and diversity", "Temperature conditions", "o",
         "Max cell temperature column not present.")
 
-# Dynamic load profiles: speed and current variance
+# Dynamic load profiles
 if col_speed and col_i_pack:
     speed_var = data.groupby("vehicle_id")[col_speed].std().mean()
     current_var = data.groupby("vehicle_id")[col_i_pack].std().mean()
@@ -613,7 +624,6 @@ add("Distribution balance", "Vehicle data balance",
 # ============================================================================
 print("\n== 6. Temporal coherence ==")
 
-# Monotonic timestamps (time is a numeric millisecond counter)
 non_mono = 0
 if col_time:
     for _, grp in data.groupby("vehicle_id"):
@@ -629,7 +639,6 @@ finding_mono = (
 add("Temporal coherence", "Monotonic temporal progression",
     score_pct_high_is_good(pct_ordered), finding_mono)
 
-# Mileage monotonicity (tolerant of sub-kilometer rounding noise)
 if col_mileage:
     total_transitions, decreases_over_tol = 0, 0
     for _, grp in data.groupby("vehicle_id"):
@@ -649,7 +658,6 @@ if col_mileage:
 else:
     add("Temporal coherence", "Mileage progression", "o", "Mileage column not present.")
 
-# Event identification
 if col_charge:
     chg_vehicles = int(data.groupby("vehicle_id")[col_charge]
                        .apply(lambda s: (s == 1).any()).sum())
