@@ -131,23 +131,72 @@ PACK_TO_DOCUMENTED_LEVEL = {
 
 
 # Plausability References: 
-# For Voltage: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204 
+# All info from: https://scholar.google.com/scholar?hl=fr&as_sdt=0%2C5&q=An+accelerated+Life+Testing+Dataset+for+Lithium-Ion+Batteries+with+Constant+and+Variable+Loading+Conditions&btnG=
 
-# For nominal voltage: https://iopscience.iop.org/article/10.1149/1945-7111/abae37 (max for all chemisteries)
-# For C rate Charge/Discharge:  https://iopscience.iop.org/article/10.1149/1945-7111/abae37?utm_campaign=topcitedpaperusa&utm_medium=referral&utm_source=landing_page#1
-#                               hhttps://iopscience.iop.org/article/10.1149/1945-7111/abae37
+# =============================================================================
+# BATTERY PACK PARAMETERS — Source: Fricke et al., "Accelerated Li-ion Battery
+# Life Cycle Data Set" (PHM Society / NASA PCoE)
+#
+# Battery cell: Samsung INR18650-25R (NCA chemistry), 2S pack configuration.
+# All page references refer to the manuscript PDF.
+# =============================================================================
 
+# --- Pack voltage limits -----------------------------------------------------
+# The paper (Table 1, p.3) gives per-cell limits:
+#     Max. voltage = 4.2 V
+#     Min. voltage = 2.5 V
+# The paper (Section 3.1, p.3) states the pack is "two 18650 cells in series (2S)".
+# Therefore pack-level limits are 2 × cell limits:
+#     PACK_V_MIN_V = 2 × 2.5 = 5.0 V   (derived, NOT printed verbatim)
+#     PACK_V_MAX_V = 2 × 4.2 = 8.4 V   (8.4 V IS printed verbatim in Section 4.3,
+#                                       p.6: "the fully charged voltage of 8.4 V")
+PACK_V_MIN_V = 5.0        # derived: 2 × 2.5 V (Table 1) with 2S (Section 3.1)
+PACK_V_MAX_V = 8.4        # explicit: Section 4.3, p.6 ("fully charged voltage of 8.4 V")
+
+
+# --- Temperature limits ------------------------------------------------------
+# The paper does NOT specify operating temperature limits for the dataset.
+# It only reports:
+#   - Lab ambient temperature ~23 °C (Section 4.6, p.9)
+#   - Max observed cell surface temperature = 105 °C (Section 4.3, p.6)
+#   - Additional observed max temps: 98 °C, 95 °C, 93 °C (Section 4.5.1, p.8)
+# The values below are OUTLIER-DETECTION BOUNDS chosen by us, not paper specs.
+# TEMP_MIN_C = -20 °C is a common Li-ion safety floor (NOT in the paper).
+# TEMP_MAX_C = 110 °C is a margin above the 105 °C max observed in the paper.
+# If you want strictly paper-grounded bounds, use TEMP_MAX_C = 105.0.
+TEMP_MIN_C = -20.0        #  our chosen safety floor C_RATE_DISCHARGE_MAX = 18.0     # dataset-appropriate 
+TEMP_MAX_C = 110.0        #  margin above 105 °C observed (Section 4.3, p.6)
+
+
+# --- C-rate limits -----------------------------------------------------------
+# Charge: the paper (Section 3.2, p.4) states charging at 3 A constant current.
+# Rated capacity is 2.5 Ah (Table 1, p.3).
+#     C_RATE_CHARGE_MAX = 3 A / 2.5 Ah = 1.2 C  (derived, NOT printed verbatim)
+#
+# Discharge: the paper (Section 2.1, p.3) explicitly states the packs were aged
+# "up to 8C hitting the maximum current rating suggested by the manufacturer".
+# Manufacturer max continuous discharge = 20 A (Table 1, p.3).
+#     20 A / 2.5 Ah = 8.0 C  (8C IS printed verbatim in Section 2.1)
+C_RATE_CHARGE_MAX    = 1.2   # derived: 3 A (Section 3.2) / 2.5 Ah (Table 1)
+C_RATE_DISCHARGE_MAX = 8.0   # explicit: 8C stated in Section 2.1, p.3
+
+
+# --- Nominal cell/pack specs -------------------------------------------------
+# Rated capacity is explicitly given as 2.5 Ah in Table 1 (p.3).
+# NOTE: the pack is 2S (series), so pack capacity = cell capacity = 2.5 Ah.
+#
+# Nominal voltage is NOT stated in the paper. The paper only gives max 4.2 V
+# and min 2.5 V (Table 1). The value 3.6 V below is the typical nominal voltage
+# for an NCA 18650 cell (standard for INR18650-25R) — NOT from the paper.
+# If you want a paper-derived midpoint instead: (4.2 + 2.5) / 2 = 3.35 V/cell.
+NOMINAL_CAPACITY_AH  = 2.5   # explicit: Table 1, p.3 ("Rated capacity 2.5 Ah")
+NOMINAL_VOLTAGE_V    = 3.6   # NOT in paper — typical NCA 18650 nominal  https://iopscience.iop.org/article/10.1149/1945-7111/abae37 
+
+# Pack topology: explicitly stated as 2S in Section 3.1 (p.3) and Fig. 1 caption.
+PACK_CELLS_IN_SERIES = 2     # explicit: Section 3.1, p.3 ("two 18650 cells in series (2S)")
 # Nb packs:    https://data.nasa.gov/dataset/randomized-and-recommissioned-battery-dataset
 
-PACK_V_MIN_V, PACK_V_MAX_V = 4.0, 7.30  # 2*2 and 4.2*2 
-TEMP_MIN_C, TEMP_MAX_C = -20.0, 60.0
 
-C_RATE_CHARGE_MAX    = 1.0
-C_RATE_DISCHARGE_MAX = 18.0     # dataset-appropriate 
-
-NOMINAL_CAPACITY_AH  = 1.1
-NOMINAL_VOLTAGE_V    = 3.3
-PACK_CELLS_IN_SERIES = 2
 
 # ============================================================================
 # SCORING FUNCTIONS (identical vocabulary to the Oxford / MIT / CALCE / SNL code)
