@@ -86,16 +86,17 @@ METADATA_ONLY = {
 
 # Protocol elements documented in NASA's metadata / README.
 PROTOCOL_METADATA = {
-    "chemistry": True,             # LFP family (implied by 2S pack voltage window)
-    "cell_model": False,           # exact cell model number not given
-    "pack_configuration": True,    # 2S, ~1.1 Ah per cell
-    "temperature": True,           # battery surface temperature recorded
-    "charging_protocol": True,     # documented; 72 fast-charging policies in broader dataset
-    "discharge_protocol": True,    # reference (2.5 A) and regular missions
-    "load_profile_inventory": True,# 5 CC levels + 2 variable-current groups, with named packs
-    "failure_criterion": True,     # testing continues toward failure
-}
 
+    "chemistry": False,              # only "Lithium-Ion" is stated; specific chemistry not specified
+    "cell_model": False,             # exact cell model/part number not specified
+    "pack_configuration": False,     # pack is mentioned, but number of cells/configuration is not documented here
+    "temperature": True,             # battery electrode-surface temperature is continuously measured
+    "charging_protocol": False,      # charging mode is identified, but charging current/voltage/termination protocol is not documented
+    "discharge_protocol": True,      # reference discharge and regular discharge missions are documented
+    "load_profile_inventory": True,  # constant-current levels and variable-current ranges/segments are explicitly listed
+    "failure_criterion": True,       # relative time is tracked to failure and the dataset is an accelerated life-test dataset
+
+}
 # Documented discharge groups for the regular folder (README).
 # Used to group replicate packs by condition. This is the ground truth for
 # which packs belong to which experimental condition; snapping data-derived
@@ -127,7 +128,18 @@ PACK_TO_DOCUMENTED_LEVEL = {
 # side column is populated only during discharge/rest. No always-on pack-
 # voltage column exists in the CSV set.
 # ============================================================================
-PACK_V_MIN_V, PACK_V_MAX_V = 4.0, 7.30
+
+
+# Plausability References: 
+# For Voltage: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204 
+
+# For nominal voltage: https://iopscience.iop.org/article/10.1149/1945-7111/abae37 (max for all chemisteries)
+# For C rate Charge/Discharge:  https://iopscience.iop.org/article/10.1149/1945-7111/abae37?utm_campaign=topcitedpaperusa&utm_medium=referral&utm_source=landing_page#1
+#                               hhttps://iopscience.iop.org/article/10.1149/1945-7111/abae37
+
+# Nb packs:    https://data.nasa.gov/dataset/randomized-and-recommissioned-battery-dataset
+
+PACK_V_MIN_V, PACK_V_MAX_V = 4.0, 7.30  # 2*2 and 4.2*2 
 TEMP_MIN_C, TEMP_MAX_C = -20.0, 60.0
 
 C_RATE_CHARGE_MAX    = 1.0

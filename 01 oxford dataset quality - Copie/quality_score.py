@@ -85,7 +85,7 @@ CRATE_N = 1        # metadata: characterization currents (1C, pseudo-OCV) explic
 
 # Protocol elements documented in metadata.txt (all present -> comprehensive documentation)
 PROTOCOL_METADATA = {
-    "chemistry": True,
+    "chemistry": False,
     "cell_model": True,
     "environmental_temperature": True,
     "charging_protocol": True,
