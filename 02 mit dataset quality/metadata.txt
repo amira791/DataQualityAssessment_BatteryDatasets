@@ -105,7 +105,7 @@ Discharge cutoff voltage:
 2.0 V
 
 Charge cutoff voltage:
-3.3 V
+3.6 V
 
 Operating temperature:
 30°C
@@ -192,5 +192,62 @@ High-frequency time-series measurements are available
 for individual cells and cycles.
 
 
+============================================================
+7. BATTERY DEGRADATION
+============================================================
+
+Ageing mode:
+Long-term cycling to failure or experimental stopping.
+
+Capacity degradation:
+Progressively recorded through cycle-level discharge
+capacity.
+
+SOH derivation:
+Capacity retention can be calculated from discharge
+capacity relative to the initial/reference capacity.
+
+End-of-life reference:
+80% capacity retention is commonly used for battery
+lifetime analysis; however, the dataset contains cells
+with different degradation trajectories and experimental
+stopping points.
+
+Cycle-life diversity:
+Large variation in the number of cycles achieved across
+cells.
+
+
+============================================================
+8. REPRESENTATIVENESS AND DIVERSITY
+============================================================
+
+Chemistry diversity:
+1 chemistry (LFP/Graphite)
+
+Temperature diversity:
+1 temperature condition (30°C)
+
+DoD diversity:
+Limited; the principal discharge protocol is common
+across the dataset
+
+C-rate diversity:
+Present, primarily through multiple fast-charging
+protocols
+
+Replicate cells/vehicles:
+124 independent cells
+
+Calendar aging:
+Absent as a dedicated experimental condition
+
+Dynamic load profiles:
+Absent; the principal discharge protocol is controlled
+rather than a dynamic real-world load profile
+
+Real-world operation:
+Absent; all cells were tested under laboratory
+conditions
 
 

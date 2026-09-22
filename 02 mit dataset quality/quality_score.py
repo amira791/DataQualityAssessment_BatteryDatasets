@@ -51,14 +51,33 @@ SCORE_LABELS = {"++": "Comprehensive coverage", "+": "Mostly satisfied",
                 "o": "Partially satisfied", "-": "Not satisfied"}
 SCORE_COLORS = {"++": "#2ca02c", "+": "#98df8a", "o": "#ffbb78", "-": "#d62728"}
 
+
+
+# Plausability References: 
+# For Voltage: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204 
+
+# For C rate:  min : https://calce.umd.edu/battery-data 0.5C in file names but Max_Current column does not record the CC setpoint. It records the peak instantaneous
+#              min : 1C is a QC guard rail https://calce.umd.edu/battery-data 
+#              max: https://calce.umd.edu/battery-data 
+# For Discharge/Charge Temperature:  min & max : https://www.master-instruments.com.au/files/data_sheets/Lithium/Lithium%20Polymer/Kokam%20SLPB353452-DATA%20SHEET(020917).pdf
+# For nominal voltage: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204
+# For nominal capacity: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204
+#                       https://web.mit.edu/braatzgroup/Severson_NatureEnergy_2019.pdf
+# For C rate Charge/Discharge:  https://data.matr.io/1/projects/5c48dd2bc625d700019f3204
+#                               https://web.mit.edu/braatzgroup/Severson_NatureEnergy_2019.pdf (4C,1C,6C)
+
+
 # Physical plausibility bounds -- general Li-ion envelope for LFP cells
 # (dataset-agnostic fixed bounds, matching the Oxford code's approach).
 VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.0, 3.65
-CURRENT_MIN_A, CURRENT_MAX_A = -10.0, 10.0
 CHARGE_TEMP_MIN_C, CHARGE_TEMP_MAX_C = 0.0, 45.0
 DISCHARGE_TEMP_MIN_C, DISCHARGE_TEMP_MAX_C = -20.0, 60.0
-NOMINAL_CAPACITY_AH = 2.54   # A124 nominal capacity
-NOMINAL_VOLTAGE_V = 3.3      # A124 nominal voltage
+NOMINAL_CAPACITY_AH = 1.1   
+NOMINAL_VOLTAGE_V = 3.3      
+C_RATE_CHARGE_MAX    = 6.0
+C_RATE_DISCHARGE_MAX = 4.0
+charge_limit_A    = NOMINAL_CAPACITY_AH * C_RATE_CHARGE_MAX     
+discharge_limit_A = NOMINAL_CAPACITY_AH * C_RATE_DISCHARGE_MAX   
 
 # ============================================================================
 # METADATA-ONLY FACTS (genuinely undeterminable from the .mat file's own
@@ -359,8 +378,8 @@ per_signal = []
 for label, mask, col, lo, hi in [
     ("Voltage (charge segments)", is_charge, "v", VOLTAGE_MIN_V, VOLTAGE_MAX_V),
     ("Voltage (discharge segments)", is_discharge, "v", VOLTAGE_MIN_V, VOLTAGE_MAX_V),
-    ("Current (charge segments)", is_charge, "i", 0.0, CURRENT_MAX_A),
-    ("Current (discharge segments)", is_discharge, "i", CURRENT_MIN_A, 0.0),
+    ("Current (charge segments)", is_charge, "i", 0.0, charge_limit_A),
+    ("Current (discharge segments)", is_discharge, "i", -discharge_limit_A, 0.0),
     ("Temperature (charge segments)", is_charge, "T", CHARGE_TEMP_MIN_C, CHARGE_TEMP_MAX_C),
     ("Temperature (discharge segments)", is_discharge, "T", DISCHARGE_TEMP_MIN_C, DISCHARGE_TEMP_MAX_C),
 ]:
@@ -378,7 +397,7 @@ pct_implausible = (viol / total * 100) if total else 0
 add("Correctness", "Physical plausibility", score_pct_low_is_good(pct_implausible),
     f"{viol:,}/{total:,} voltage/current/temperature readings ({pct_implausible:.3f}%) outside "
     f"the general Li-ion envelope (voltage {VOLTAGE_MIN_V}-{VOLTAGE_MAX_V}V; current "
-    f"{CURRENT_MIN_A}-{CURRENT_MAX_A}A; temperature {CHARGE_TEMP_MIN_C}-{CHARGE_TEMP_MAX_C}C during "
+    f"charge ≤ {C_RATE_CHARGE_MAX}C = {charge_limit_A:.2f}A, discharge ≤ "
     f"charge, {DISCHARGE_TEMP_MIN_C}-{DISCHARGE_TEMP_MAX_C}C during discharge).")
 
 # Current sign convention: during charge, I>0; during discharge, I<0.

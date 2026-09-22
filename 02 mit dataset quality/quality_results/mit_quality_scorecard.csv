@@ -1,5 +1,5 @@
 criterion,aspect,score,finding
-Correctness,Physical plausibility,o,"5,847,546/297,398,721 voltage/current/temperature readings (1.966%) outside the general Li-ion envelope (voltage 2.0-3.65V; current -10.0-10.0A; temperature 0.0-45.0C during charge, -20.0-60.0C during discharge)."
+Correctness,Physical plausibility,o,"6,783,428/297,398,721 voltage/current/temperature readings (2.281%) outside the general Li-ion envelope (voltage 2.0-3.65V; current charge ≤ 6.0C = 6.60A, discharge ≤ charge, -20.0-60.0C during discharge)."
 Correctness,Current sign convention,++,"117,729/117,729 cycles (100.00%) show both a positive charge phase and a negative discharge phase, as expected (positive = charge, negative = discharge convention confirmed directly from the recorded Current field)."
 Completeness,Missing values,++,"0.0000% missing across essential columns ['t', 'v', 'i', 'T'] (0 of 435,956,972 expected measurements)."
 Completeness,Temporal continuity,+,Average within-cycle sampling continuity (no gaps >5x the median interval): 99.18%.
