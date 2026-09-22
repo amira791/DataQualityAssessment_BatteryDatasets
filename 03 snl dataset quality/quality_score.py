@@ -111,9 +111,18 @@ PROTOCOL_METADATA = {
 #   part of this envelope.
 #   Source: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
 # ============================================================================
+
+# Plausability References: 
+# For Voltage: https://data.matr.io/1/projects/5c48dd2bc625d700019f3204 
+
+# For nominal voltage: https://iopscience.iop.org/article/10.1149/1945-7111/abae37 (max for all chemisteries)
+# For C rate Charge/Discharge:  https://iopscience.iop.org/article/10.1149/1945-7111/abae37?utm_campaign=topcitedpaperusa&utm_medium=referral&utm_source=landing_page#1
+#                               hhttps://iopscience.iop.org/article/10.1149/1945-7111/abae37
+
+
 VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.5, 4.2
-C_RATE_CHARGE_MAX    = 1.0   # upper bound of "maximum charge" C-rate rule
-C_RATE_DISCHARGE_MAX = 5.0   # upper bound of "maximum continuous discharge" C-rate rule
+C_RATE_CHARGE_MAX    = 0.5   # upper bound of "maximum charge" C-rate rule
+C_RATE_DISCHARGE_MAX = 3.0   # upper bound of "maximum continuous discharge" C-rate rule
 NOMINAL_VOLTAGE_V = 3.6      # typical 18650 Li-ion operating voltage, used only to express noise as %
 # Examples of sources: https://www.nature.com/articles/s41598-025-25924-2/tables/1
 # https://www.nature.com/articles/s41597-025-06229-5/tables/1
