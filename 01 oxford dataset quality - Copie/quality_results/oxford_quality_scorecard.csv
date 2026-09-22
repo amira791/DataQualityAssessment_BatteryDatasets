@@ -6,7 +6,7 @@ Completeness,Temporal continuity,++,Average within-segment sampling continuity (
 Completeness,Test protocol documentation,++,7/7 essential protocol elements documented (100%).
 Anomaly and noise control,Statistical outliers,++,0.000% of per-cycle 1-C discharge capacity values fall outside the 3xIQR range.
 Anomaly and noise control,Unexpected signal changes,o,1.590% of cycle-to-cycle capacity transitions fall outside the 3xIQR range of transition sizes (first transition per cell excluded).
-Anomaly and noise control,Measurement noise,++,"Median sample-to-sample voltage fluctuation during pseudo-OCV (~0.05C, near-resting) segments is 0.0034% of a 3.65V reference."
+Anomaly and noise control,Measurement noise,++,"Median sample-to-sample voltage fluctuation during pseudo-OCV (~0.05C, near-resting) segments is 0.0033% of a 3.7V reference."
 Representativeness and diversity,Chemistry diversity,o,1 chemistry/cell model (Kokam SLPB533459H4) across the whole dataset -- no per-cell chemistry field exists in the .mat to count from.
 Representativeness and diversity,Temperature conditions,++,"Measured temperature range [0.5, 42.9]C (chamber setpoint 40C per metadata) -> 24 effective condition(s)."
 Representativeness and diversity,DoD diversity,o,"1 DoD condition per metadata (""Limited; cells primarily subjected to the same drive-cycle-based cycling protocol"") -- no per-cycle DoD field to count independently."

@@ -94,6 +94,16 @@ PROTOCOL_METADATA = {
     "characterization_current": True,
 }
 
+
+# Plausability References: 
+# For Voltage: https://www.batteryspace.com/Custom-Lithium-Battery-3.6V-20000mAh-72Wh-3.5A-rate-2x2L-INR21700-50E.aspx 
+#              https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
+#              https://pmc.ncbi.nlm.nih.gov/articles/PMC9758532/
+# For Discharge/Charge Temperature:  min & max : https://www.master-instruments.com.au/files/data_sheets/Lithium/Lithium%20Polymer/Kokam%20SLPB353452-DATA%20SHEET(020917).pdf
+# For nominal voltage: https://pmc.ncbi.nlm.nih.gov/articles/PMC9758532/
+# For nominal capacity: https://ora.ox.ac.uk/objects/uuid:03ba4b01-cfed-46d3-9b1a-7d4a7bdf6factioned explicitly as 1.35Ah for CX2 family
+
+
 # Physical plausibility bounds -- general Li-ion envelope (dataset-agnostic,
 # per this dataset's revised scope: voltage and temperature only, current
 # excluded since no reliable per-sample current exists in this file).
@@ -101,7 +111,7 @@ VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.5, 4.2
 CHARGE_TEMP_MIN_C, CHARGE_TEMP_MAX_C = 0.0, 45.0
 DISCHARGE_TEMP_MIN_C, DISCHARGE_TEMP_MAX_C = -20.0, 60.0
 NOMINAL_CAPACITY_AH = 0.740   # 740 mAh per metadata.txt
-NOMINAL_VOLTAGE_V = 3.65      # metadata: nominal 3.6-3.7V
+NOMINAL_VOLTAGE_V = 3.7      # metadata: nominal 3.6-3.7V
 
 # ============================================================================
 # SCORING FUNCTIONS 

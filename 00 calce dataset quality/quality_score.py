@@ -104,9 +104,24 @@ PROTOCOL_METADATA = {
 #   stated scope. Capacity still feeds the outlier / SOH / distribution
 #   sections; temperature is unused here (CALCE CX2 is single-temperature).
 # ============================================================================
+
+
+
+# Plausability References: 
+# For Voltage: https://www.batteryspace.com/Custom-Lithium-Battery-3.6V-20000mAh-72Wh-3.5A-rate-2x2L-INR21700-50E.aspx 
+#              https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf
+# For C rate:  min : https://calce.umd.edu/battery-data 0.5C in file names but Max_Current column does not record the CC setpoint. It records the peak instantaneous
+#              min : 1C is a QC guard rail https://calce.umd.edu/battery-data 
+#              max: https://calce.umd.edu/battery-data 
+# For nominal voltage: https://cdn-shop.adafruit.com/product-files/5035/5035_10050mAh_3.7V_A1____20210511.pdf  (A 3.7 V nominal voltage is therefore a conventional, appropriate value for this LCO cell chemistry)
+#                      https://link-springer-com.ezproxy.uphf.fr/article/10.1007/s40095-018-0284-6/tables/3
+#                      https://cloud.kepuchina.cn/h5/detail?id=6969059234440204288#1
+# For nominal capacity: https://calce.umd.edu/battery-data and in files name mentioned explicitly as 1.35Ah for CX2 family
+
+
 VOLTAGE_MIN_V, VOLTAGE_MAX_V = 2.5, 4.2
-C_RATE_CHARGE_MAX    = 1.0   # upper bound of "maximum charge" C-rate rule
-C_RATE_DISCHARGE_MAX = 5.0   # upper bound of "maximum continuous discharge" C-rate rule
+C_RATE_CHARGE_MAX    = 1.0  # upper bound of "maximum charge" C-rate rule
+C_RATE_DISCHARGE_MAX = 3.0   # upper bound of "maximum continuous discharge" C-rate rule
 NOMINAL_VOLTAGE_V = 3.7      # typical LCO operating voltage, used only to express noise as a %
 NOMINAL_CAPACITY_AH = 1.35   # CX2 family nominal capacity (1350 mAh), used to derive 1C
 

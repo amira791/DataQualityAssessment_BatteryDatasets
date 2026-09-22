@@ -1,5 +1,5 @@
 criterion,aspect,score,finding
-Correctness,Physical plausibility,+,"73/49,852 voltage/current readings (0.146%) outside the general Li-ion envelope. Voltage checked against the fixed 2.5-4.2 V window. Current checked against a C-rate envelope (charge ≤ 1.0C, discharge ≤ 5.0C), with 1C = 1.35 Ah for the CX2 family. Temperature and capacity deliberately excluded from this check."
+Correctness,Physical plausibility,+,"74/49,852 voltage/current readings (0.148%) outside the general Li-ion envelope. Voltage checked against the fixed 2.5-4.2 V window. Current checked against a C-rate envelope (charge ≤ 1.0C, discharge ≤ 3.0C), with 1C = 1.35 Ah for the CX2 family. Temperature and capacity deliberately excluded from this check."
 Correctness,Documented vs. observed current rate,++,"CALCE documentation specifies a 0.5C charge rate (0.675A for 1.35Ah nominal). Median observed Max_Current is 1.174A (implied rate 0.87C); 0.0% of cycles exceed twice the documented rate. Reported as a finding, not folded into the physical-plausibility score."
 Correctness,Current sign convention,+,"12,414/12,480 cycles (99.47%) show positive charge current and negative discharge current, as documented."
 Completeness,Missing values,++,"0.0000% missing across essential columns ['Cycle_Index', 'Discharge_Capacity (Ah)', 'Min_Voltage (V)', 'Max_Voltage (V)']."
