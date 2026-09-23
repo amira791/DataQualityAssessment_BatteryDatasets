@@ -69,6 +69,21 @@ SCORE_COLORS = {"++": "#2ca02c", "+": "#98df8a", "o": "#ffbb78", "-": "#d62728"}
 # recovered from the CSVs under any amount of analysis)
 # ============================================================================
 METADATA_ONLY = {
+    "Chemistry diversity": {
+        "score": "o",
+        "finding": "1 chemistry across all packs. The general README states only "
+                   "'lithium-ion' and does not specify the chemistry; the companion "
+                   "PHM paper identifies the cell as Samsung INR18650-25R (NCA). "
+                   "Because all 15 packs use the same cell model, chemistry "
+                   "diversity is 1 regardless of which source is used.",
+    },
+    "DoD diversity": {
+        "score": "o",
+        "finding": "1 DoD regime (full-depth cycling between the documented cell "
+                   "cutoffs of 2.5 V and 4.2 V). The README lists no partial-DoD "
+                   "variant in the regular folder; all 15 packs cycle over the "
+                   "same depth.",
+    },
     "Calendar aging": {
         "score": "-",
         "finding": "NASA documentation reports no dedicated calendar-aging "
